@@ -1,0 +1,12 @@
+<!--suppress XmlUnboundNsPrefix -->
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/5.3/phpunit.xsd"
+        bootstrap="ut/bootstrap.php"
+>
+    <testsuites>
+        <testsuite name="all">
+            <file>ut/CascadeRemoveTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

@@ -11,7 +11,8 @@
     },
     "autoload"   : {
         "psr-4": {
-            "Oasis\\Mlib\\Doctrine\\": "src/"
+            "Oasis\\Mlib\\Doctrine\\"    : "src/",
+            "Oasis\\Mlib\\Doctrine\\Ut\\": "ut/"
         }
     },
     "license"    : "MIT",
