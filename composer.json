@@ -10,7 +10,7 @@
         "phpunit/phpunit": "^5.3"
     },
     "autoload"   : {
-        "psr-r": {
+        "psr-4": {
             "Oasis\\Mlib\\Doctrine\\": "src/"
         }
     },
