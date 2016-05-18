@@ -20,6 +20,7 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         parent::setUpBeforeClass();
         $olddir = getcwd();
         chdir(__DIR__);
+        system("../vendor/bin/doctrine orm:clear-cache:meta");
         system("../vendor/bin/doctrine orm:schema-tool:drop -f");
         system("../vendor/bin/doctrine orm:schema-tool:create");
         chdir($olddir);
@@ -39,10 +40,13 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $article->setCategory($category);
         $subCategory = new Category();
         $subCategory->setParent($category);
+        $grandchildrenCategory = new Category();
+        $grandchildrenCategory->setParent($subCategory);
 
         $this->entityManger->persist($category);
         $this->entityManger->persist($article);
         $this->entityManger->persist($subCategory);
+        $this->entityManger->persist($grandchildrenCategory);
         $this->entityManger->flush();
 
         $categoryId = $category->getId();
@@ -52,15 +56,64 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $this->entityManger->remove($category);
         $this->entityManger->flush();
 
-        $article = $this->entityManger->find(":Article", $articleId);
-        $this->assertNull($article);
+        $article2 = $this->entityManger->find(":Article", $articleId);
+        $this->assertNull($article2);
         /** @var Category $subCategory */
-        $subCategory = $this->entityManger->find(":Category", $subId);
-        $this->assertNotNull($subCategory);
+        $subCategory2 = $this->entityManger->find(":Category", $subId);
+        $this->assertNotNull($subCategory2);
         $this->assertNotNull(
             $categoryId,
-            $subCategory->getParent()
+            $subCategory2->getParent()
         ); // the parent is still a Category object, this should be null if we cascade remove all children
+
+        $this->entityManger->detach($article);
+        $this->entityManger->detach($subCategory);
+        $this->entityManger->detach($category);
+        $this->entityManger->detach($grandchildrenCategory);
+        $this->entityManger->flush();
+    }
+
+    public function testCircularCascadeRemove()
+    {
+        $a1 = new Article();
+        $a2 = new Article();
+        $a3 = new Article();
+        $t1 = new Tag();
+        $t2 = new Tag();
+        $t3 = new Tag();
+
+        $a1->addTag($t1);
+        $a1->addTag($t2);
+        $a2->addTag($t3);
+        $a2->addTag($t1);
+        $a3->addTag($t2);
+        $a3->addTag($t3);
+
+        $this->entityManger->persist($a1);
+        $this->entityManger->persist($a2);
+        $this->entityManger->persist($a3);
+        $this->entityManger->persist($t1);
+        $this->entityManger->persist($t2);
+        $this->entityManger->persist($t3);
+        $this->entityManger->flush();
+
+        $a3id = $a3->getId(); // for later usage
+
+        $this->entityManger->remove($t1);
+        $this->entityManger->flush();
+
+        /** @var Article $a1 */
+        $a1 = $this->entityManger->find(':Article', $a1->getId());
+        $this->assertEquals(1, sizeof($a1->getTags()));
+
+        $a3 = $this->entityManger->find(':Article', $a3id);
+        $this->entityManger->remove($a3);
+        $this->entityManger->flush();
+
+        /** @var Tag $t2 */
+        $t2 = $this->entityManger->find(':Tag', $t2->getId());
+        $this->assertEquals(1, sizeof($t2->getArticles()));
+
     }
 
 }

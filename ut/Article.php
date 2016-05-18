@@ -8,8 +8,11 @@
 
 namespace Oasis\Mlib\Doctrine\Ut;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Oasis\Mlib\Doctrine\AutoIdTrait;
+use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
+use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
 
 /**
  * Class Article
@@ -18,9 +21,12 @@ use Oasis\Mlib\Doctrine\AutoIdTrait;
  *
  * @ORM\Entity()
  * @ORM\Table(name="articles")
+ *
+ * @ORM\HasLifecycleCallbacks()
  */
-class Article
+class Article implements CascadeRemovableInterface
 {
+    use CascadeRemoveTrait;
     use AutoIdTrait;
 
     /**
@@ -29,9 +35,18 @@ class Article
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $category;
+    /**
+     * @var ArrayCollection
+     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="articles")
+     * @ORM\JoinTable(name="article_tags",
+     *     inverseJoinColumns={@ORM\JoinColumn(name="tag", referencedColumnName="id", onDelete="CASCADE")},
+     *     joinColumns={@ORM\JoinColumn(name="`article`", referencedColumnName="id", onDelete="CASCADE")})
+     */
+    protected $tags;
 
     public function __construct()
     {
+        $this->tags = new ArrayCollection();
     }
 
     /**
@@ -56,6 +71,31 @@ class Article
         $this->category = $category;
         if ($category) {
             $category->addArticle($this);
+        }
+    }
+
+    /**
+     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
+     *               entity is removed.
+     */
+    public function getCascadeRemovableEntities()
+    {
+        return $this->tags->toArray();
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag)
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+            $tag->addArticle($this);
         }
     }
 }

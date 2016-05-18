@@ -136,4 +136,10 @@ class Category implements CascadeRemovableInterface
             $this->children->remove($child);
         }
     }
+
+    function __toString()
+    {
+        return '111';
+    }
+
 }

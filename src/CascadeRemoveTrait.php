@@ -52,19 +52,26 @@ trait CascadeRemoveTrait
      *
      * @param EntityManager             $em
      * @param CascadeRemovableInterface $entity
+     * @param array                     $visited visited entities
      */
-    private function doCascadeDetach(EntityManager $em, CascadeRemovableInterface $entity)
+    private function doCascadeDetach(EntityManager $em, CascadeRemovableInterface $entity, &$visited = [])
     {
+        if (in_array($entity, $visited)) {
+            //mdebug('skipping');
+            return;
+        }
+        $visited[] = $entity;
+
         $entities = $entity->getCascadeRemovableEntities();
-        foreach ($entities as $entity) {
-            //mdebug("Cascade detaching %s when detaching %s", get_class($entity), get_called_class());
-            $id = $em->getUnitOfWork()->getEntityIdentifier($entity);
-            if ($entity instanceof CascadeRemovableInterface) {
-                $this->doCascadeDetach($em, $entity);
+        foreach ($entities as $subEntity) {
+            //mdebug("Cascade detaching %s when detaching %s", get_class($subEntity), get_class($entity));
+            $id = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
+            if ($subEntity instanceof CascadeRemovableInterface) {
+                $this->doCascadeDetach($em, $subEntity, $visited);
             }
 
-            $em->detach($entity);
-            $em->getCache()->evictEntity(get_class($entity), $id);
+            $em->detach($subEntity);
+            $em->getCache()->evictEntity(get_class($subEntity), $id);
         }
     }
 }
