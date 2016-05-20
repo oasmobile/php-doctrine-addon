@@ -78,7 +78,7 @@ class Article implements CascadeRemovableInterface
      * @return array an array of entities asscociated to the calling entity, which should be detached when calling
      *               entity is removed.
      */
-    public function getCascadeRemovableEntities()
+    public function getDirtyEntitiesOnInvalidation()
     {
         return $this->tags->toArray();
     }

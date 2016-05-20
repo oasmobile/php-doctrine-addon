@@ -16,7 +16,7 @@ interface CascadeRemovableInterface
      * @return array an array of entities asscociated to the calling entity, which should be detached when calling
      *               entity is removed.
      */
-    public function getCascadeRemovableEntities();
+    public function getDirtyEntitiesOnInvalidation();
 
     /**
      * This function has a default implementation in CascadeRemoveTrait, use the trait if you don't have an idea what

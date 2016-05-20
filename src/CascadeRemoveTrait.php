@@ -65,7 +65,7 @@ trait CascadeRemoveTrait
         $key           = serialize([get_class($entity), $id]);
         $visited[$key] = $entity;
 
-        $entities = $entity->getCascadeRemovableEntities();
+        $entities = $entity->getDirtyEntitiesOnInvalidation();
         foreach ($entities as $subEntity) {
             //mdebug("Cascade detaching %s when detaching %s", get_class($subEntity), get_class($entity));
             $id  = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
