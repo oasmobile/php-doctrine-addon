@@ -62,4 +62,10 @@ class Tag implements CascadeRemovableInterface
     {
         return $this->articles->toArray();
     }
+
+    function __toString()
+    {
+        return sprintf("Tag #%s", $this->getId());
+    }
+
 }

@@ -44,8 +44,8 @@ trait CascadeRemoveTrait
         /** @var EntityManager $em */
         $em = $eventArgs->getObjectManager();
         $this->findCascadeDetachableEntities($em, $this, $toRemove);
-        foreach ($toRemove as $id => $entity) {
-            $id = unserialize($id);
+        foreach ($toRemove as $key => $entity) {
+            list(, $id) = unserialize($key);
             $em->detach($entity);
             $em->getCache()->evictEntity(get_class($entity), $id);
         }
@@ -61,16 +61,16 @@ trait CascadeRemoveTrait
      */
     private function findCascadeDetachableEntities(EntityManager $em, CascadeRemovableInterface $entity, &$visited = [])
     {
-        $id           = $em->getUnitOfWork()->getEntityIdentifier($entity);
-        $id           = serialize($id);
-        $visited[$id] = $entity;
+        $id            = $em->getUnitOfWork()->getEntityIdentifier($entity);
+        $key           = serialize([get_class($entity), $id]);
+        $visited[$key] = $entity;
 
         $entities = $entity->getCascadeRemovableEntities();
         foreach ($entities as $subEntity) {
             //mdebug("Cascade detaching %s when detaching %s", get_class($subEntity), get_class($entity));
-            $id = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
-            $id = serialize($id);
-            if (array_key_exists($id, $visited)) {
+            $id  = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
+            $key = serialize([get_class($subEntity), $id]);
+            if (array_key_exists($key, $visited)) {
                 continue;
             }
 
@@ -78,7 +78,7 @@ trait CascadeRemoveTrait
                 $this->findCascadeDetachableEntities($em, $subEntity, $visited);
             }
             else {
-                $visited[$id] = $subEntity;
+                $visited[$key] = $subEntity;
             }
         }
     }

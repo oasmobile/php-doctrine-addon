@@ -96,10 +96,22 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $this->entityManger->persist($t2);
         $this->entityManger->persist($t3);
         $this->entityManger->flush();
+        $this->entityManger->flush();
+
+        echo sprintf(
+            "Created %s, %s, %s, %s, %s, %s",
+            $a1,
+            $a2,
+            $a3,
+            $t1,
+            $t2,
+            $t3
+        );
 
         $a3id = $a3->getId(); // for later usage
 
         $this->entityManger->remove($t1);
+        $this->entityManger->flush();
         $this->entityManger->flush();
 
         /** @var Article $a1 */
@@ -108,6 +120,7 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
 
         $a3 = $this->entityManger->find(':Article', $a3id);
         $this->entityManger->remove($a3);
+        $this->entityManger->flush();
         $this->entityManger->flush();
 
         /** @var Tag $t2 */

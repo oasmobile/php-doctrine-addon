@@ -98,4 +98,10 @@ class Article implements CascadeRemovableInterface
             $tag->addArticle($this);
         }
     }
+
+    function __toString()
+    {
+        return sprintf("Article #%s", $this->getId());
+    }
+
 }
