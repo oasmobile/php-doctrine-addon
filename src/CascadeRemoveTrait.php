@@ -43,7 +43,12 @@ trait CascadeRemoveTrait
         /** @var CascadeRemovableInterface|CascadeRemoveTrait $this */
         /** @var EntityManager $em */
         $em = $eventArgs->getObjectManager();
-        $this->doCascadeDetach($em, $this);
+        $this->findCascadeDetachableEntities($em, $this, $toRemove);
+        foreach ($toRemove as $id => $entity) {
+            $id = unserialize($id);
+            $em->detach($entity);
+            $em->getCache()->evictEntity(get_class($entity), $id);
+        }
     }
 
     /**
@@ -54,24 +59,27 @@ trait CascadeRemoveTrait
      * @param CascadeRemovableInterface $entity
      * @param array                     $visited visited entities
      */
-    private function doCascadeDetach(EntityManager $em, CascadeRemovableInterface $entity, &$visited = [])
+    private function findCascadeDetachableEntities(EntityManager $em, CascadeRemovableInterface $entity, &$visited = [])
     {
-        if (in_array($entity, $visited)) {
-            //mdebug('skipping');
-            return;
-        }
-        $visited[] = $entity;
+        $id           = $em->getUnitOfWork()->getEntityIdentifier($entity);
+        $id           = serialize($id);
+        $visited[$id] = $entity;
 
         $entities = $entity->getCascadeRemovableEntities();
         foreach ($entities as $subEntity) {
             //mdebug("Cascade detaching %s when detaching %s", get_class($subEntity), get_class($entity));
             $id = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
-            if ($subEntity instanceof CascadeRemovableInterface) {
-                $this->doCascadeDetach($em, $subEntity, $visited);
+            $id = serialize($id);
+            if (array_key_exists($id, $visited)) {
+                continue;
             }
 
-            $em->detach($subEntity);
-            $em->getCache()->evictEntity(get_class($subEntity), $id);
+            if ($subEntity instanceof CascadeRemovableInterface) {
+                $this->findCascadeDetachableEntities($em, $subEntity, $visited);
+            }
+            else {
+                $visited[$id] = $subEntity;
+            }
         }
     }
 }
