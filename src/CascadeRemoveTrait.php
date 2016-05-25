@@ -29,11 +29,14 @@ use Doctrine\ORM\Mapping as ORM;
  */
 trait CascadeRemoveTrait
 {
+    /** @var  array */
+    private $dirtyEntities;
+
     /**
-     * @ORM\PostRemove()
+     * @ORM\PreRemove()
      * @param LifecycleEventArgs $eventArgs
      */
-    public function onPostRemove(LifecycleEventArgs $eventArgs)
+    public function onPreRemove(LifecycleEventArgs $eventArgs)
     {
         if (!$this instanceof CascadeRemovableInterface) {
             throw new \LogicException(
@@ -44,7 +47,18 @@ trait CascadeRemoveTrait
         /** @var EntityManager $em */
         $em = $eventArgs->getObjectManager();
         $this->findCascadeDetachableEntities($em, $this, $toRemove);
-        foreach ($toRemove as $key => $entity) {
+        $this->dirtyEntities = $toRemove;
+    }
+
+    /**
+     * @ORM\PostRemove()
+     * @param LifecycleEventArgs $eventArgs
+     */
+    public function onPostRemove(LifecycleEventArgs $eventArgs)
+    {
+        /** @var EntityManager $em */
+        $em = $eventArgs->getObjectManager();
+        foreach ($this->dirtyEntities as $key => $entity) {
             list(, $id) = unserialize($key);
             $em->detach($entity);
             $em->getCache()->evictEntity(get_class($entity), $id);
@@ -58,8 +72,12 @@ trait CascadeRemoveTrait
      * @param EntityManager             $em
      * @param CascadeRemovableInterface $entity
      * @param array                     $visited visited entities
+     * @param int                       $depth
      */
-    private function findCascadeDetachableEntities(EntityManager $em, CascadeRemovableInterface $entity, &$visited = [])
+    private function findCascadeDetachableEntities(EntityManager $em,
+                                                   CascadeRemovableInterface $entity,
+                                                   &$visited = [],
+                                                   $depth = 0)
     {
         $id            = $em->getUnitOfWork()->getEntityIdentifier($entity);
         $key           = serialize([get_class($entity), $id]);
@@ -67,15 +85,30 @@ trait CascadeRemoveTrait
 
         $entities = $entity->getDirtyEntitiesOnInvalidation();
         foreach ($entities as $subEntity) {
-            //mdebug("Cascade detaching %s when detaching %s", get_class($subEntity), get_class($entity));
             $id  = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
             $key = serialize([get_class($subEntity), $id]);
             if (array_key_exists($key, $visited)) {
+                //mdebug(
+                //    "%sSkipping %s %d when detaching %s %d",
+                //    str_repeat(' ', $depth * 4),
+                //    get_class($subEntity),
+                //    $subEntity->getId(),
+                //    get_class($entity),
+                //    $entity->getId()
+                //);
                 continue;
             }
+            //mdebug(
+            //    "%sCascade detaching %s %d when detaching %s %d",
+            //    str_repeat(' ', $depth * 4),
+            //    get_class($subEntity),
+            //    $subEntity->getId(),
+            //    get_class($entity),
+            //    $entity->getId()
+            //);
 
             if ($subEntity instanceof CascadeRemovableInterface) {
-                $this->findCascadeDetachableEntities($em, $subEntity, $visited);
+                $this->findCascadeDetachableEntities($em, $subEntity, $visited, $depth + 1);
             }
             else {
                 $visited[$key] = $subEntity;
