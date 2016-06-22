@@ -49,6 +49,36 @@ class Article implements CascadeRemovableInterface
         $this->tags = new ArrayCollection();
     }
 
+    function __toString()
+    {
+        return sprintf("Article #%s", $this->getId());
+    }
+
+    public function addTag(Tag $tag)
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+            $tag->addArticle($this);
+        }
+    }
+
+    /**
+     * @return array an array of entities which will also be removed when the calling entity is remvoed
+     */
+    public function getCascadeRemoveableEntities()
+    {
+        return [];
+    }
+
+    /**
+     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
+     *               entity is removed.
+     */
+    public function getDirtyEntitiesOnInvalidation()
+    {
+        return $this->tags->toArray();
+    }
+
     /**
      * @return Category
      */
@@ -75,33 +105,10 @@ class Article implements CascadeRemovableInterface
     }
 
     /**
-     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
-     *               entity is removed.
-     */
-    public function getDirtyEntitiesOnInvalidation()
-    {
-        return $this->tags->toArray();
-    }
-
-    /**
      * @return ArrayCollection
      */
     public function getTags()
     {
         return $this->tags;
     }
-
-    public function addTag(Tag $tag)
-    {
-        if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
-            $tag->addArticle($this);
-        }
-    }
-
-    function __toString()
-    {
-        return sprintf("Article #%s", $this->getId());
-    }
-
 }

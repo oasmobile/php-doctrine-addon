@@ -39,6 +39,11 @@ class Tag implements CascadeRemovableInterface
         $this->articles = new ArrayCollection();
     }
 
+    function __toString()
+    {
+        return sprintf("Tag #%s", $this->getId());
+    }
+
     public function addArticle(Article $article)
     {
         if (!$this->articles->contains($article)) {
@@ -55,6 +60,14 @@ class Tag implements CascadeRemovableInterface
     }
 
     /**
+     * @return array an array of entities which will also be removed when the calling entity is remvoed
+     */
+    public function getCascadeRemoveableEntities()
+    {
+        return [];
+    }
+
+    /**
      * @return array an array of entities asscociated to the calling entity, which should be detached when calling
      *               entity is removed.
      */
@@ -62,10 +75,4 @@ class Tag implements CascadeRemovableInterface
     {
         return $this->articles->toArray();
     }
-
-    function __toString()
-    {
-        return sprintf("Tag #%s", $this->getId());
-    }
-
 }

@@ -19,6 +19,11 @@ interface CascadeRemovableInterface
     public function getDirtyEntitiesOnInvalidation();
 
     /**
+     * @return array an array of entities which will also be removed when the calling entity is remvoed
+     */
+    public function getCascadeRemoveableEntities();
+
+    /**
      * This function has a default implementation in CascadeRemoveTrait, use the trait if you don't have an idea what
      * this is about.
      *

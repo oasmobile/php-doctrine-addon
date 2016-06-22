@@ -54,17 +54,9 @@ class Category implements CascadeRemovableInterface
         $this->children = new ArrayCollection();
     }
     
-    /**
-     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
-     *               entity is removed.
-     */
-    public function getDirtyEntitiesOnInvalidation()
+    function __toString()
     {
-        return array_merge(
-            $this->articles->toArray(),
-            //$this->children->toArray(),
-            []
-        );
+        return '111';
     }
     
     /**
@@ -74,6 +66,16 @@ class Category implements CascadeRemovableInterface
     {
         if (!$this->articles->contains($article)) {
             $this->articles->add($article);
+        }
+    }
+    
+    /**
+     * @param $child
+     */
+    public function addChild($child)
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
         }
     }
     
@@ -88,13 +90,48 @@ class Category implements CascadeRemovableInterface
     }
     
     /**
+     * @param $child
+     */
+    public function removeChild($child)
+    {
+        if ($this->children->contains($child)) {
+            $this->children->remove($child);
+        }
+    }
+    
+    /**
+     * @return array an array of entities which will also be removed when the calling entity is remvoed
+     */
+    public function getCascadeRemoveableEntities()
+    {
+        return $this->articles->toArray();
+    }
+    
+    /**
+     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
+     *               entity is removed.
+     */
+    public function getDirtyEntitiesOnInvalidation()
+    {
+        return [];
+    }
+    
+    /**
+     * @return ArrayCollection
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
      * @return Category
      */
     public function getParent()
     {
         return $this->parent;
     }
-    
+
     /**
      * @param Category $parent
      */
@@ -108,38 +145,4 @@ class Category implements CascadeRemovableInterface
             $parent->addChild($this);
         }
     }
-    
-    /**
-     * @return ArrayCollection
-     */
-    public function getChildren()
-    {
-        return $this->children;
-    }
-    
-    /**
-     * @param $child
-     */
-    public function addChild($child)
-    {
-        if (!$this->children->contains($child)) {
-            $this->children->add($child);
-        }
-    }
-    
-    /**
-     * @param $child
-     */
-    public function removeChild($child)
-    {
-        if ($this->children->contains($child)) {
-            $this->children->remove($child);
-        }
-    }
-
-    function __toString()
-    {
-        return '111';
-    }
-
 }
