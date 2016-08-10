@@ -123,14 +123,14 @@ trait CascadeRemoveTrait
                 //);
                 continue;
             }
-            mdebug(
-                "%sCascade removing %s %d when removing %s %d",
-                str_repeat(' ', $depth * 4),
-                get_class($subEntity),
-                $subEntity->getId(),
-                get_class($entity),
-                $entity->getId()
-            );
+            //mdebug(
+            //    "%sCascade removing %s %d when removing %s %d",
+            //    str_repeat(' ', $depth * 4),
+            //    get_class($subEntity),
+            //    $subEntity->getId(),
+            //    get_class($entity),
+            //    $entity->getId()
+            //);
 
             if ($subEntity instanceof CascadeRemovableInterface) {
                 $this->findCascadeDetachableEntities($em, $subEntity, $visited, $depth + 1);

@@ -43,7 +43,11 @@ class Tag implements CascadeRemovableInterface
     {
         return sprintf("Tag #%s", $this->getId());
     }
-
+    
+    /**
+     * @param Article $article
+     * @internal
+     */
     public function addArticle(Article $article)
     {
         if (!$this->articles->contains($article)) {
