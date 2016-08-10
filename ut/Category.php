@@ -61,6 +61,8 @@ class Category implements CascadeRemovableInterface
     
     /**
      * @param Article $article
+     *
+     * @internal
      */
     public function addArticle($article)
     {
@@ -71,6 +73,8 @@ class Category implements CascadeRemovableInterface
     
     /**
      * @param $child
+     *
+     * @internal
      */
     public function addChild($child)
     {
@@ -81,6 +85,8 @@ class Category implements CascadeRemovableInterface
     
     /**
      * @param Article $article
+     *
+     * @internal
      */
     public function removeArticle($article)
     {
@@ -91,6 +97,8 @@ class Category implements CascadeRemovableInterface
     
     /**
      * @param $child
+     *
+     * @internal
      */
     public function removeChild($child)
     {
@@ -123,7 +131,7 @@ class Category implements CascadeRemovableInterface
     {
         return $this->children;
     }
-
+    
     /**
      * @return Category
      */
@@ -131,7 +139,7 @@ class Category implements CascadeRemovableInterface
     {
         return $this->parent;
     }
-
+    
     /**
      * @param Category $parent
      */

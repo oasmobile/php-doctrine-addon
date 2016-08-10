@@ -58,6 +58,7 @@ class Article implements CascadeRemovableInterface
     {
         if (!$this->tags->contains($tag)) {
             $this->tags->add($tag);
+            /** @noinspection PhpInternalEntityUsedInspection */
             $tag->addArticle($this);
         }
     }
@@ -96,10 +97,12 @@ class Article implements CascadeRemovableInterface
             return;
         }
         if ($this->category) {
+            /** @noinspection PhpInternalEntityUsedInspection */
             $this->category->removeArticle($this);
         }
         $this->category = $category;
         if ($category) {
+            /** @noinspection PhpInternalEntityUsedInspection */
             $category->addArticle($this);
         }
     }
