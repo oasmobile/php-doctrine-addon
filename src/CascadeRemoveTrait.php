@@ -33,7 +33,7 @@ trait CascadeRemoveTrait
     private $removedEntities;
     /** @var  array */
     private $dirtyEntities;
-
+    
     /**
      * @ORM\PreRemove()
      * @param LifecycleEventArgs $eventArgs
@@ -69,7 +69,7 @@ trait CascadeRemoveTrait
             $this->dirtyEntities[$key] = $dirtyEntity;
         }
     }
-
+    
     /**
      * @ORM\PostRemove()
      * @param LifecycleEventArgs $eventArgs
@@ -84,12 +84,18 @@ trait CascadeRemoveTrait
             $em->getCache()->evictEntity(get_class($entity), $id);
         }
         foreach ($this->dirtyEntities as $key => $entity) {
+            if ($em->getUnitOfWork()->isScheduledForDelete($entity)
+                || !$em->getUnitOfWork()->isInIdentityMap($entity)
+            ) {
+                //var_dump(get_class($entity));
+                continue;
+            }
             list(, $id) = unserialize($key);
             $em->getCache()->evictEntity(get_class($entity), $id);
             $em->refresh($entity);
         }
     }
-
+    
     /**
      * Detaches associated entities from EntityManager and Cache. Normally these entities should either be deleted
      * or updated in database in post-remove phase.
@@ -107,7 +113,7 @@ trait CascadeRemoveTrait
         $id            = $em->getUnitOfWork()->getEntityIdentifier($entity);
         $key           = serialize([get_class($entity), $id]);
         $visited[$key] = $entity;
-
+        
         $entities = $entity->getCascadeRemoveableEntities();
         foreach ($entities as $subEntity) {
             $id  = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
@@ -131,7 +137,7 @@ trait CascadeRemoveTrait
             //    get_class($entity),
             //    $entity->getId()
             //);
-
+            
             if ($subEntity instanceof CascadeRemovableInterface) {
                 $this->findCascadeDetachableEntities($em, $subEntity, $visited, $depth + 1);
             }

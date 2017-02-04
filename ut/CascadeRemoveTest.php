@@ -98,15 +98,15 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $this->entityManger->flush();
         $this->entityManger->flush();
 
-        echo sprintf(
-            "Created %s, %s, %s, %s, %s, %s",
-            $a1,
-            $a2,
-            $a3,
-            $t1,
-            $t2,
-            $t3
-        );
+        //echo sprintf(
+        //    "Created %s, %s, %s, %s, %s, %s",
+        //    $a1,
+        //    $a2,
+        //    $a3,
+        //    $t1,
+        //    $t2,
+        //    $t3
+        //);
 
         $a3id = $a3->getId(); // for later usage
 
@@ -127,6 +127,21 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $t2 = $this->entityManger->find(':Tag', $t2->getId());
         $this->assertEquals(1, sizeof($t2->getArticles()));
 
+    }
+    
+    public function testRemovalOfBothSidesOfManyToManyRelation()
+    {
+        $article = new Article();
+        $tag = new Tag();
+        $this->entityManger->persist($article);
+        $this->entityManger->persist($tag);
+        $article->addTag($tag);
+        $this->entityManger->flush();
+        
+        $this->entityManger->remove($article);
+        $this->entityManger->remove($tag);
+        $this->entityManger->flush();
+    
     }
 
 }
