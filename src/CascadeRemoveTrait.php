@@ -81,7 +81,6 @@ trait CascadeRemoveTrait
             if ($em->getUnitOfWork()->isScheduledForDelete($entity)
                 || !$em->getUnitOfWork()->isInIdentityMap($entity)
             ) {
-                //var_dump(get_class($entity));
                 continue;
             }
             list(, $id) = unserialize($key);
@@ -113,25 +112,8 @@ trait CascadeRemoveTrait
             $id  = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
             $key = serialize([get_class($subEntity), $id]);
             if (array_key_exists($key, $visited)) {
-                //mdebug(
-                //    "%sSkipping %s %d when detaching %s %d",
-                //    str_repeat(' ', $depth * 4),
-                //    get_class($subEntity),
-                //    $subEntity->getId(),
-                //    get_class($entity),
-                //    $entity->getId()
-                //);
                 continue;
             }
-            //mdebug(
-            //    "%sCascade removing %s %d when removing %s %d",
-            //    str_repeat(' ', $depth * 4),
-            //    get_class($subEntity),
-            //    $subEntity->getId(),
-            //    get_class($entity),
-            //    $entity->getId()
-            //);
-            
             if ($subEntity instanceof CascadeRemovableInterface) {
                 $this->findCascadeDetachableEntities($em, $subEntity, $visited, $depth + 1);
             }
