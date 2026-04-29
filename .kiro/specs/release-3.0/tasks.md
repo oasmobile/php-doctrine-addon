@@ -72,7 +72,7 @@
     - 验证：`vendor/bin/phpunit` exit code 0，无 deprecation warning
     - commit message 参考：`refactor: migrate annotations to attributes, replace deprecated APIs`
 
-- [-] 3. AutoIdTrait Property-Based Test
+- [x] 3. AutoIdTrait Property-Based Test
   - [x] 3.1 编写 `ut/Test/AutoIdTraitPbtTest.php`
     - 创建测试类，`use Eris\TestTrait`
     - 实现 Property 1（ID 唯一性与正整数约束）：使用 `Generator\choose(1, 100)` 生成批量大小 N，persist N 个 Article，flush 后验证所有 ID 互不相同且均为正整数
@@ -84,12 +84,12 @@
     - **Property 2: AutoIdTrait ID 持久化 round-trip**
     - **Validates: Requirements 10.3**
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
-  - [-] 3.2 Checkpoint: 执行 `vendor/bin/phpunit` 确认全量测试通过（含 PBT），commit
+  - [x] 3.2 Checkpoint: 执行 `vendor/bin/phpunit` 确认全量测试通过（含 PBT），commit
     - 验证：全量测试通过，AutoIdTrait PBT 100 次迭代全部通过，零 deprecation warning
     - commit message 参考：`test: add AutoIdTrait property-based tests`
 
-- [~] 4. CascadeRemoveTrait Property-Based Test
-  - [ ] 4.1 编写 `ut/Test/CascadeRemoveTraitPbtTest.php`
+- [x] 4. CascadeRemoveTrait Property-Based Test
+  - [x] 4.1 编写 `ut/Test/CascadeRemoveTraitPbtTest.php`
     - 创建测试类，`use Eris\TestTrait`
     - 实现半随机拓扑 generator（CR Q2 决策）：使用 `Generator\oneOf()` 在 4 种模式间随机选择（`single-parent`、`parent-with-tags`、`tag-hub`、`deep-chain`），使用 `Generator\choose(1, 10)` 生成数量参数 N 和 M
     - 实现拓扑构建 helper 方法，根据模式和参数创建 entity 图并返回删除目标、强关联实体列表、弱关联实体列表
@@ -102,27 +102,27 @@
     - **Property 4: CascadeRemoveTrait 弱关联实体刷新正确性**
     - **Validates: Requirements 11.4**
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
-  - [ ] 4.2 Checkpoint: 执行 `vendor/bin/phpunit` 确认全量测试通过（含所有 PBT），commit
+  - [x] 4.2 Checkpoint: 执行 `vendor/bin/phpunit` 确认全量测试通过（含所有 PBT），commit
     - 验证：全量测试通过，CascadeRemoveTrait PBT 100 次迭代全部通过，零 deprecation warning
     - commit message 参考：`test: add CascadeRemoveTrait property-based tests`
 
-- [~] 5. 手工测试与集成验证
-  - [ ] 5.1 Increment alpha tag
+- [-] 5. 手工测试与集成验证
+  - [x] 5.1 Increment alpha tag
     - 查询已有 alpha tag（`git tag -l 'v3.0-alpha*'`），取最大序号 +1，打新 tag
     - 如无 alpha tag 则打 `v3.0-alpha1`
-  - [ ] 5.2 全量测试验证
+  - [x] 5.2 全量测试验证
     - 执行 `vendor/bin/phpunit`，确认 exit code 0
     - 确认零 PHP deprecated warning（包括第三方依赖）
     - 确认所有现有测试 + PBT 用例全部通过
     - _Requirements: 12.1, 12.2, 12.3_
-  - [ ] 5.3 Composer 配置验证
+  - [x] 5.3 Composer 配置验证
     - 执行 `composer validate` 确认无 error
     - 执行 `composer install --dry-run` 确认依赖解析无冲突
     - _Requirements: 1.2, 4.2, 7.2, 9.2_
-  - [ ] 5.4 Annotation 残留扫描
+  - [x] 5.4 Annotation 残留扫描
     - 执行 `grep -r '@ORM\\' src/ ut/Entity/` 确认返回空结果
     - _Requirements: 5.1, 5.2_
-  - [ ] 5.5 Checkpoint: 所有验证通过，commit
+  - [-] 5.5 Checkpoint: 所有验证通过，commit
     - 验证：全量测试通过、composer validate 通过、无 Annotation 残留
     - commit message 参考：`test: release 3.0 alpha integration verification`
 
