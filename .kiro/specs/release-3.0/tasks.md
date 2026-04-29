@@ -6,8 +6,8 @@
 
 ## Tasks
 
-- [ ] 1. Composer 依赖变更与 PHPUnit 配置适配
-  - [ ] 1.1 修改 `composer.json` 依赖约束
+- [x] 1. Composer 依赖变更与 PHPUnit 配置适配
+  - [x] 1.1 修改 `composer.json` 依赖约束
     - 在 `require` 段新增 `php: ^8.4`
     - 将 `doctrine/orm` 从 `^2.7` 改为 `^2.20`
     - 将 `oasis/logging` 从 `^1.1` 升级到最新版本
@@ -17,63 +17,63 @@
     - 新增 `giorgiosironi/eris: ^1.0`
     - 执行 `composer update` 确认依赖解析成功
     - _Requirements: 1.1, 1.2, 2.1, 4.1, 4.2, 6.1, 7.1, 7.2, 9.1, 9.2_
-  - [ ] 1.2 适配 `phpunit.xml` 为 PHPUnit 13 格式
+  - [x] 1.2 适配 `phpunit.xml` 为 PHPUnit 13 格式
     - 将 schema 声明从 `http://schema.phpunit.de/5.3/phpunit.xsd` 改为 `vendor/phpunit/phpunit/phpunit.xsd`
     - 添加 `displayDetailsOnTestsThatTriggerDeprecations="true"` 属性
     - 添加 `failOnDeprecation="true"` 属性（CR Q3 严格零 warning 决策）
     - 保留 `bootstrap="ut/bootstrap.php"` 和现有 test suite 定义
     - 预留新增 PBT 测试文件的 `<file>` 条目（`AutoIdTraitPbtTest.php`、`CascadeRemoveTraitPbtTest.php`）
     - _Requirements: 3.1, 3.2, 3.3, 12.2_
-  - [ ] 1.3 Checkpoint: 执行 `composer validate` 确认配置合法，commit
+  - [x] 1.3 Checkpoint: 执行 `composer validate` 确认配置合法，commit
     - 验证：`composer validate` 无 error
     - 注意：此时测试尚不能通过（TestEnv 仍使用 deprecated API + Annotation driver），仅验证依赖解析和配置格式
     - commit message 参考：`chore: upgrade composer deps for PHP 8.5 + PHPUnit 13`
 
-- [ ] 2. Annotation → Attribute 迁移与 TestEnv API 替换
-  - [ ] 2.1 迁移 `src/AutoIdTrait.php` 的 ORM Annotation 到 Attribute
+- [x] 2. Annotation → Attribute 迁移与 TestEnv API 替换
+  - [x] 2.1 迁移 `src/AutoIdTrait.php` 的 ORM Annotation 到 Attribute
     - 将 `@ORM\Id()`、`@ORM\GeneratedValue(strategy="AUTO")`、`@ORM\Column(type="integer")` 迁移为 `#[ORM\Id]`、`#[ORM\GeneratedValue(strategy: 'AUTO')]`、`#[ORM\Column(type: 'integer')]`
     - 移除包含 ORM annotation 的 docblock
     - _Requirements: 5.1_
-  - [ ] 2.2 迁移 `src/CascadeRemoveTrait.php` 的 ORM Annotation 到 Attribute
+  - [x] 2.2 迁移 `src/CascadeRemoveTrait.php` 的 ORM Annotation 到 Attribute
     - 将 `@ORM\PreRemove()` 和 `@ORM\PostRemove()` 迁移为 `#[ORM\PreRemove]` 和 `#[ORM\PostRemove]`
     - 移除包含 ORM annotation 的 docblock（保留非 ORM 的 PHPDoc）
     - _Requirements: 5.1_
-  - [ ] 2.3 迁移 `ut/Entity/Article.php` 的 ORM Annotation 到 Attribute
+  - [x] 2.3 迁移 `ut/Entity/Article.php` 的 ORM Annotation 到 Attribute
     - 迁移类级别注解：`@ORM\Entity`、`@ORM\Table`、`@ORM\Cache`、`@ORM\HasLifecycleCallbacks`
     - 迁移属性级别注解：`@ORM\ManyToOne`、`@ORM\JoinColumn`、`@ORM\ManyToMany`、`@ORM\JoinTable`（含嵌套 `@ORM\JoinColumn`）
     - `targetEntity` 参数从字符串改为 `::class` 引用
     - _Requirements: 5.2_
-  - [ ] 2.4 迁移 `ut/Entity/Category.php` 的 ORM Annotation 到 Attribute
+  - [x] 2.4 迁移 `ut/Entity/Category.php` 的 ORM Annotation 到 Attribute
     - 迁移类级别注解：`@ORM\Entity`、`@ORM\Table`、`@ORM\Cache`、`@ORM\HasLifecycleCallbacks`
     - 迁移属性级别注解：`@ORM\OneToMany`、`@ORM\ManyToOne`、`@ORM\JoinColumn`
     - _Requirements: 5.2_
-  - [ ] 2.5 迁移 `ut/Entity/Tag.php` 的 ORM Annotation 到 Attribute
+  - [x] 2.5 迁移 `ut/Entity/Tag.php` 的 ORM Annotation 到 Attribute
     - 迁移类级别注解：`@ORM\Entity`、`@ORM\Cache`、`@ORM\HasLifecycleCallbacks`
     - 迁移属性级别注解：`@ORM\ManyToMany`
     - _Requirements: 5.2_
-  - [ ] 2.6 迁移 `ut/Entity/PlainArticle.php` 的 ORM Annotation 到 Attribute
+  - [x] 2.6 迁移 `ut/Entity/PlainArticle.php` 的 ORM Annotation 到 Attribute
     - 迁移类级别注解：`@ORM\Entity`、`@ORM\Table`、`@ORM\Cache`
     - 迁移属性级别注解：`@ORM\ManyToOne`、`@ORM\JoinColumn`
     - _Requirements: 5.2_
-  - [ ] 2.7 迁移 `ut/Entity/PlainCategory.php` 的 ORM Annotation 到 Attribute
+  - [x] 2.7 迁移 `ut/Entity/PlainCategory.php` 的 ORM Annotation 到 Attribute
     - 迁移类级别注解：`@ORM\Entity`、`@ORM\Table`、`@ORM\Cache`
     - 迁移属性级别注解：`@ORM\OneToMany`
     - _Requirements: 5.2_
-  - [ ] 2.8 替换 `ut/TestEnv.php` 中的 deprecated API
+  - [x] 2.8 替换 `ut/TestEnv.php` 中的 deprecated API
     - 将 `use Doctrine\ORM\Tools\Setup` 替换为 `use Doctrine\ORM\ORMSetup`
     - 将 `Setup::createAnnotationMetadataConfiguration(...)` 替换为 `ORMSetup::createAttributeMetadataConfiguration([__DIR__ . '/Entity'], $isDevMode)`
     - 将 `EntityManager::create($connection, $config)` 替换为 `new EntityManager($connection, $config)`
     - _Requirements: 5.3, 5.4, 8.1, 8.2, 8.3_
-  - [ ] 2.9 验证 Annotation 残留并运行全量测试
+  - [x] 2.9 验证 Annotation 残留并运行全量测试
     - 执行 `grep -r '@ORM\\' src/ ut/Entity/` 确认无 Annotation 残留
     - 执行 `vendor/bin/phpunit` 确认全量测试通过且零 deprecation warning
     - _Requirements: 2.2, 2.3, 5.5, 6.2, 12.1, 12.2_
-  - [ ] 2.10 Checkpoint: 全量测试通过且零 deprecation warning，commit
+  - [x] 2.10 Checkpoint: 全量测试通过且零 deprecation warning，commit
     - 验证：`vendor/bin/phpunit` exit code 0，无 deprecation warning
     - commit message 参考：`refactor: migrate annotations to attributes, replace deprecated APIs`
 
-- [ ] 3. AutoIdTrait Property-Based Test
-  - [ ] 3.1 编写 `ut/Test/AutoIdTraitPbtTest.php`
+- [-] 3. AutoIdTrait Property-Based Test
+  - [x] 3.1 编写 `ut/Test/AutoIdTraitPbtTest.php`
     - 创建测试类，`use Eris\TestTrait`
     - 实现 Property 1（ID 唯一性与正整数约束）：使用 `Generator\choose(1, 100)` 生成批量大小 N，persist N 个 Article，flush 后验证所有 ID 互不相同且均为正整数
     - 实现 Property 2（ID round-trip）：使用 `Generator\choose(1, 100)` 生成批量大小 N，persist N 个 Article → flush → 记录 ID → clear → find → 验证 ID 一致
@@ -84,11 +84,11 @@
     - **Property 2: AutoIdTrait ID 持久化 round-trip**
     - **Validates: Requirements 10.3**
     - _Requirements: 10.1, 10.2, 10.3, 10.4_
-  - [ ] 3.2 Checkpoint: 执行 `vendor/bin/phpunit` 确认全量测试通过（含 PBT），commit
+  - [-] 3.2 Checkpoint: 执行 `vendor/bin/phpunit` 确认全量测试通过（含 PBT），commit
     - 验证：全量测试通过，AutoIdTrait PBT 100 次迭代全部通过，零 deprecation warning
     - commit message 参考：`test: add AutoIdTrait property-based tests`
 
-- [ ] 4. CascadeRemoveTrait Property-Based Test
+- [~] 4. CascadeRemoveTrait Property-Based Test
   - [ ] 4.1 编写 `ut/Test/CascadeRemoveTraitPbtTest.php`
     - 创建测试类，`use Eris\TestTrait`
     - 实现半随机拓扑 generator（CR Q2 决策）：使用 `Generator\oneOf()` 在 4 种模式间随机选择（`single-parent`、`parent-with-tags`、`tag-hub`、`deep-chain`），使用 `Generator\choose(1, 10)` 生成数量参数 N 和 M
@@ -106,7 +106,7 @@
     - 验证：全量测试通过，CascadeRemoveTrait PBT 100 次迭代全部通过，零 deprecation warning
     - commit message 参考：`test: add CascadeRemoveTrait property-based tests`
 
-- [ ] 5. 手工测试与集成验证
+- [~] 5. 手工测试与集成验证
   - [ ] 5.1 Increment alpha tag
     - 查询已有 alpha tag（`git tag -l 'v3.0-alpha*'`），取最大序号 +1，打新 tag
     - 如无 alpha tag 则打 `v3.0-alpha1`
@@ -126,7 +126,7 @@
     - 验证：全量测试通过、composer validate 通过、无 Annotation 残留
     - commit message 参考：`test: release 3.0 alpha integration verification`
 
-- [ ] 6. Code Review
+- [~] 6. Code Review
   - 委托给 `code-reviewer` sub-agent 执行
   - Review 范围：本 spec 所有变更文件（`composer.json`、`phpunit.xml`、`src/` 下 3 个文件、`ut/Entity/` 下 5 个文件、`ut/TestEnv.php`、新增的 2 个 PBT 测试文件）
 
