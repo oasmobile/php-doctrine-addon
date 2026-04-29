@@ -20,10 +20,8 @@ composer require oasis/doctrine-addon
 use Doctrine\ORM\Mapping as ORM;
 use Oasis\Mlib\Doctrine\AutoIdTrait;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="users")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'users')]
 class User
 {
     use AutoIdTrait;
@@ -60,13 +58,13 @@ Doctrine 原生方案：
 
 ### 使用前提
 
-- 使用方必须启用 Doctrine Second Level Cache（entity 声明 `@ORM\Cache` 注解 + ORM 配置中开启二级缓存）
+- 使用方必须启用 Doctrine Second Level Cache（entity 声明 `#[ORM\Cache]` attribute + ORM 配置中开启二级缓存）
 - 强关联实体的数据库外键必须设置 `ON DELETE CASCADE`
 
 ### 使用步骤
 
-1. entity 添加 `@ORM\HasLifecycleCallbacks` 注解
-2. entity 添加 `@ORM\Cache` 注解
+1. entity 添加 `#[ORM\HasLifecycleCallbacks]` attribute
+2. entity 添加 `#[ORM\Cache]` attribute
 3. 实现 `CascadeRemovableInterface`
 4. `use CascadeRemoveTrait`
 5. 数据库外键设置 `ON DELETE CASCADE`
@@ -77,23 +75,19 @@ use Oasis\Mlib\Doctrine\AutoIdTrait;
 use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
 use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="articles")
- * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
- * @ORM\HasLifecycleCallbacks()
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'articles')]
+#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
+#[ORM\HasLifecycleCallbacks]
 class Article implements CascadeRemovableInterface
 {
     use CascadeRemoveTrait;
     use AutoIdTrait;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="articles")
-     * @ORM\JoinTable(name="article_tags",
-     *     inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")},
-     *     joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
-     */
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'articles')]
+    #[ORM\JoinTable(name: 'article_tags',
+        inverseJoinColumns: [new ORM\JoinColumn(onDelete: 'CASCADE')],
+        joinColumns: [new ORM\JoinColumn(onDelete: 'CASCADE')])]
     protected $tags;
 
     public function getCascadeRemoveableEntities()

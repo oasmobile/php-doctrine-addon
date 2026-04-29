@@ -6,7 +6,7 @@
 
 ## 环境要求
 
-- PHP 7.4+（需启用 `pdo_sqlite` 扩展）
+- PHP 8.4+（需启用 `pdo_sqlite` 扩展）
 - Composer
 - 可选：pcov 扩展（用于生成覆盖率报告）
 

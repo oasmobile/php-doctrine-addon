@@ -106,7 +106,7 @@
     - 验证：全量测试通过，CascadeRemoveTrait PBT 100 次迭代全部通过，零 deprecation warning
     - commit message 参考：`test: add CascadeRemoveTrait property-based tests`
 
-- [-] 5. 手工测试与集成验证
+- [x] 5. 手工测试与集成验证
   - [x] 5.1 Increment alpha tag
     - 查询已有 alpha tag（`git tag -l 'v3.0-alpha*'`），取最大序号 +1，打新 tag
     - 如无 alpha tag 则打 `v3.0-alpha1`
@@ -122,11 +122,11 @@
   - [x] 5.4 Annotation 残留扫描
     - 执行 `grep -r '@ORM\\' src/ ut/Entity/` 确认返回空结果
     - _Requirements: 5.1, 5.2_
-  - [-] 5.5 Checkpoint: 所有验证通过，commit
+  - [x] 5.5 Checkpoint: 所有验证通过，commit
     - 验证：全量测试通过、composer validate 通过、无 Annotation 残留
     - commit message 参考：`test: release 3.0 alpha integration verification`
 
-- [~] 6. Code Review
+- [x] 6. Code Review
   - 委托给 `code-reviewer` sub-agent 执行
   - Review 范围：本 spec 所有变更文件（`composer.json`、`phpunit.xml`、`src/` 下 3 个文件、`ut/Entity/` 下 5 个文件、`ut/TestEnv.php`、新增的 2 个 PBT 测试文件）
 
