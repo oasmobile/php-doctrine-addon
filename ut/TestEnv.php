@@ -5,7 +5,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Cache\DefaultCacheFactory;
 use Doctrine\ORM\Cache\RegionsConfiguration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\ORMSetup;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
@@ -26,12 +26,9 @@ class TestEnv
         }
 
         $isDevMode = true;
-        $config    = Setup::createAnnotationMetadataConfiguration(
+        $config    = ORMSetup::createAttributeMetadataConfiguration(
             [__DIR__ . '/Entity'],
-            $isDevMode,
-            null,
-            null,
-            false
+            $isDevMode
         );
         // Entity namespace aliases removed (not supported by doctrine/persistence 3.x)
         // Tests use FQCN instead of short aliases like ":Article"
@@ -47,7 +44,7 @@ class TestEnv
         ];
         $connection     = DriverManager::getConnection($connectionInfo);
         $connection->executeStatement('PRAGMA foreign_keys = ON');
-        self::$entityManager = EntityManager::create($connection, $config);
+        self::$entityManager = new EntityManager($connection, $config);
 
         return self::$entityManager;
     }

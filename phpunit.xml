@@ -1,8 +1,9 @@
-<!--suppress XmlUnboundNsPrefix -->
 <phpunit
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/5.3/phpunit.xsd"
+        xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
         bootstrap="ut/bootstrap.php"
+        displayDetailsOnTestsThatTriggerDeprecations="true"
+        failOnDeprecation="true"
 >
     <testsuites>
         <testsuite name="all">
@@ -10,6 +11,8 @@
             <file>ut/Test/CascadeRemoveTest.php</file>
             <file>ut/Test/CascadeRemoveTraitTest.php</file>
             <file>ut/Test/CascadeRemoveContrastTest.php</file>
+            <file>ut/Test/AutoIdTraitPbtTest.php</file>
+            <file>ut/Test/CascadeRemoveTraitPbtTest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

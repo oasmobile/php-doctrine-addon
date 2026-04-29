@@ -8,21 +8,17 @@ use Oasis\Mlib\Doctrine\AutoIdTrait;
 /**
  * An article entity that does NOT use CascadeRemoveTrait.
  * Used to demonstrate the problem this lib solves.
- *
- * @ORM\Entity()
- * @ORM\Table(name="plain_articles")
- * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  */
+#[ORM\Entity]
+#[ORM\Table(name: 'plain_articles')]
+#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
 class PlainArticle
 {
     use AutoIdTrait;
 
-    /**
-     * @var PlainCategory
-     * @ORM\ManyToOne(targetEntity="PlainCategory", inversedBy="articles")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     */
-    protected $category;
+    #[ORM\ManyToOne(targetEntity: PlainCategory::class, inversedBy: 'articles')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    protected ?PlainCategory $category = null;
 
     /** @return PlainCategory */
     public function getCategory()

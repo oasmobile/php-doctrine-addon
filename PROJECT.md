@@ -6,9 +6,9 @@ Doctrine ORM 扩展组件，提供自动 ID trait 和级联删除缓存失效机
 
 ## 技术栈
 
-- 语言：PHP 7.4+
-- 框架/依赖：Doctrine ORM ^2.7, doctrine/annotations ^1.13, oasis/logging ^1.1
-- 测试：PHPUnit ^8.5
+- 语言：PHP ^8.4
+- 框架/依赖：Doctrine ORM ^2.20, oasis/logging ^3.0
+- 测试：PHPUnit ^13.0, giorgiosironi/eris ^1.0（PBT）
 - 包管理：Composer
 
 ---

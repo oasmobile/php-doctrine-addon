@@ -12,7 +12,7 @@
 
 | 字段 | 类型 | 注解 |
 |------|------|------|
-| `$id` | `integer` | `@ORM\Id`, `@ORM\GeneratedValue(strategy="AUTO")`, `@ORM\Column(type="integer")` |
+| `$id` | `integer` | `#[ORM\Id]`, `#[ORM\GeneratedValue(strategy: 'AUTO')]`, `#[ORM\Column(type: 'integer')]` |
 
 ### 提供的方法
 
@@ -42,9 +42,9 @@ entity 实现此接口以启用级联删除缓存失效机制。
 
 ### 使用前提
 
-- entity 必须声明 `@ORM\HasLifecycleCallbacks` 注解
+- entity 必须声明 `#[ORM\HasLifecycleCallbacks]` attribute
 - entity 必须实现 `CascadeRemovableInterface`（否则 `onPreRemove` 抛出 `LogicException`）
-- entity 必须声明 `@ORM\Cache` 注解以启用 Second Level Cache
+- entity 必须声明 `#[ORM\Cache]` attribute 以启用 Second Level Cache
 - 强关联实体的数据库外键必须设置 `ON DELETE CASCADE`
 
 ### 内部字段
@@ -58,8 +58,8 @@ entity 实现此接口以启用级联删除缓存失效机制。
 
 | 回调 | 阶段 | 行为 |
 |------|------|------|
-| `onPreRemove` | `@ORM\PreRemove` | 递归收集强关联实体和弱关联实体；校验接口实现 |
-| `onPostRemove` | `@ORM\PostRemove` | detach 强关联实体并从二级缓存 evict；refresh 弱关联实体并从二级缓存 evict |
+| `onPreRemove` | `#[ORM\PreRemove]` | 递归收集强关联实体和弱关联实体；校验接口实现 |
+| `onPostRemove` | `#[ORM\PostRemove]` | detach 强关联实体并从二级缓存 evict；refresh 弱关联实体并从二级缓存 evict |
 
 ### onPostRemove 中的跳过逻辑
 
