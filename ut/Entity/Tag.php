@@ -9,31 +9,22 @@
 namespace Oasis\Mlib\Doctrine\Ut\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Oasis\Mlib\Doctrine\AutoIdTrait;
 use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
 use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
 
-/**
- * Class Tag
- *
- * @package Oasis\Mlib\Doctrine\Ut
- * @ORM\Entity()
- * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+#[ORM\Entity]
+#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
+#[ORM\HasLifecycleCallbacks]
 class Tag implements CascadeRemovableInterface
 {
     use CascadeRemoveTrait;
     use AutoIdTrait;
 
-    /**
-     * @var ArrayCollection
-     *
-     * @ORM\ManyToMany(targetEntity="Article", mappedBy="tags")
-     */
-    protected $articles;
+    #[ORM\ManyToMany(targetEntity: Article::class, mappedBy: 'tags')]
+    protected Collection $articles;
 
     public function __construct()
     {

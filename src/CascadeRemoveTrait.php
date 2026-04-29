@@ -34,10 +34,7 @@ trait CascadeRemoveTrait
     /** @var  array */
     private $dirtyEntities;
     
-    /**
-     * @ORM\PreRemove()
-     * @param LifecycleEventArgs $eventArgs
-     */
+    #[ORM\PreRemove]
     public function onPreRemove(LifecycleEventArgs $eventArgs)
     {
         if (!$this instanceof CascadeRemovableInterface) {
@@ -70,10 +67,7 @@ trait CascadeRemoveTrait
         }
     }
     
-    /**
-     * @ORM\PostRemove()
-     * @param LifecycleEventArgs $eventArgs
-     */
+    #[ORM\PostRemove]
     public function onPostRemove(LifecycleEventArgs $eventArgs)
     {
         /** @var EntityManager $em */
