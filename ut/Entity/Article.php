@@ -9,41 +9,30 @@
 namespace Oasis\Mlib\Doctrine\Ut\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Oasis\Mlib\Doctrine\AutoIdTrait;
 use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
 use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
 
-/**
- * Class Article
- *
- * @package Oasis\Mlib\Doctrine\Ut
- *
- * @ORM\Entity()
- * @ORM\Table(name="articles")
- * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'articles')]
+#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
+#[ORM\HasLifecycleCallbacks]
 class Article implements CascadeRemovableInterface
 {
     use CascadeRemoveTrait;
     use AutoIdTrait;
 
-    /**
-     * @var Category
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="articles")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     */
-    protected $category;
-    /**
-     * @var ArrayCollection
-     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="articles")
-     * @ORM\JoinTable(name="article_tags",
-     *     inverseJoinColumns={@ORM\JoinColumn(name="tag", referencedColumnName="id", onDelete="CASCADE")},
-     *     joinColumns={@ORM\JoinColumn(name="`article`", referencedColumnName="id", onDelete="CASCADE")})
-     */
-    protected $tags;
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'articles')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    protected ?Category $category = null;
+
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'articles')]
+    #[ORM\JoinTable(name: 'article_tags')]
+    #[ORM\JoinColumn(name: '`article`', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'tag', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    protected Collection $tags;
 
     public function __construct()
     {

@@ -49,7 +49,7 @@ class CascadeRemoveTraitTest extends TestCase
     {
         $bad = new BadEntity();
 
-        $eventArgs = $this->createMock(\Doctrine\Persistence\Event\LifecycleEventArgs::class);
+        $eventArgs = $this->createStub(\Doctrine\Persistence\Event\LifecycleEventArgs::class);
         $eventArgs->method('getObjectManager')->willReturn($this->entityManger);
 
         $this->expectException(\LogicException::class);

@@ -9,45 +9,30 @@
 namespace Oasis\Mlib\Doctrine\Ut\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Oasis\Mlib\Doctrine\AutoIdTrait;
 use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
 use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
 
-/**
- * Class Category
- *
- * @package Oasis\Mlib\Doctrine\Ut
- *
- * @ORM\Entity()
- * @ORM\Table(name="categories")
- * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'categories')]
+#[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
+#[ORM\HasLifecycleCallbacks]
 class Category implements CascadeRemovableInterface
 {
     use CascadeRemoveTrait;
     use AutoIdTrait;
     
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Article", mappedBy="category")
-     */
-    protected $articles;
+    #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'category')]
+    protected Collection $articles;
     
-    /**
-     * @var Category
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="children")
-     * @ORM\JoinColumn(onDelete="SET NULL");
-     */
-    protected $parent;
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    protected ?Category $parent = null;
     
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Category", mappedBy="parent")
-     */
-    protected $children;
+    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'parent')]
+    protected Collection $children;
     
     public function __construct()
     {

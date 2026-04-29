@@ -28,16 +28,17 @@ src/
 
 | 依赖 | 版本 | 用途 |
 |------|------|------|
-| `doctrine/orm` | ^2.7 | ORM 核心 |
-| `doctrine/annotations` | ^1.13 | 注解驱动的 metadata |
-| `oasis/logging` | ^1.1 | 日志 |
+| `php` | ^8.4 | 运行时 |
+| `doctrine/orm` | ^2.20 | ORM 核心 |
+| `oasis/logging` | ^3.0 | 日志 |
 
 开发依赖：
 
 | 依赖 | 版本 | 用途 |
 |------|------|------|
-| `phpunit/phpunit` | ^8.5 | 单元测试 |
-| `symfony/cache` | ^5.4 | 测试环境的 Second Level Cache backend（`ArrayAdapter`） |
+| `phpunit/phpunit` | ^13.0 | 单元测试 |
+| `symfony/cache` | ^7.2 | 测试环境的 Second Level Cache backend（`ArrayAdapter`） |
+| `giorgiosironi/eris` | ^1.0 | Property-based testing |
 
 ---
 
@@ -56,8 +57,10 @@ ut/
 │   └── PlainCategory.php       # 不使用 trait 的对照组分类实体
 └── Test/                       # 测试用例
     ├── AutoIdTraitTest.php     # AutoIdTrait 测试
+    ├── AutoIdTraitPbtTest.php  # AutoIdTrait property-based test
     ├── CascadeRemoveTest.php   # 原始集成测试
     ├── CascadeRemoveTraitTest.php    # trait 各分支覆盖测试
+    ├── CascadeRemoveTraitPbtTest.php # CascadeRemoveTrait property-based test
     └── CascadeRemoveContrastTest.php # 有/无 trait 的对比测试
 ```
 
@@ -69,5 +72,5 @@ ut/
 
 - PHP library，无独立运行入口
 - 通过 Composer 分发，版本号由 git tag 决定
-- 使用 Doctrine Annotation（非 Attribute），兼容 PHP 7.4+
-- CascadeRemoveTrait 要求使用方启用 Doctrine Second Level Cache（`@ORM\Cache` 注解 + cache 配置），否则 `$em->getCache()` 返回 null 会导致 fatal error
+- 使用 PHP Attribute 声明 ORM mapping metadata，要求 PHP ^8.4
+- CascadeRemoveTrait 要求使用方启用 Doctrine Second Level Cache（`#[ORM\Cache]` attribute + cache 配置），否则 `$em->getCache()` 返回 null 会导致 fatal error
