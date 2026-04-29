@@ -1,189 +1,61 @@
-# **oasis/doctrine-addon** component
+# oasis/doctrine-addon
 
-[Doctrine] is the most popular vendor for PHP database components. The core projects under this name are a [Object Relational Mapper (ORM)](http://doctrine-project.org/projects/orm.html) and the [Database Abstraction Layer (DBAL)](http://doctrine-project.org/projects/dbal.html) it is built upon.
+[Doctrine ORM](http://doctrine-project.org/projects/orm.html) 扩展组件，提供：
 
-The **oasis/doctrine-addon** component provides a few useful features to extend the [doctrine/orm] component:
-
-- a trait to ease declaration of auto generated id field
-- a trait/mechanism to make cache invalidating more flexible, during object removal phase
+- **AutoIdTrait** — 简化自增主键声明
+- **CascadeRemoveTrait** — 解决使用数据库 `ON DELETE CASCADE` 时，EntityManager identity map 和 Second Level Cache 中残留脏数据的问题
 
 ## Installation
 
-Install the latest version with command below:
-
 ```bash
-$ composer require oasis/doctrine-addon
+composer require oasis/doctrine-addon
 ```
 
 ## AutoIdTrait
 
-The `AutoIdTrait` defines an `id` property and the getter method `getId()`. It can be used in any entity class that uses `id` as its primary index.
-
-## Cascade Removal Solution
-
-When cache is presented for an ORM-enabled application, cache invalidation has always been an interesting topic to deal with. One most common exception in ORM is when you try to access a collection that contains out-dated entity. This problem is commonly referred to as the _cascade removal problem_. An exmaple is like below:
-
-> You have a Tean entity that holds a collection of its members, which are User entities. When you remove a User entity, without proper invalidation process, accessing the Team that holds reference to this User will throw an exception.
-
-By default, [doctrine/orm] provides two ways to solve this problem:
-
-- Manual invalidation upon each removal
-- Use the `cascade={"remove"}` annotation
-
-However, either of the two solutions are not optimal. Needless to say, the manual removal is complex and will become a nightmare when you have a reference chain. On the other hand, using the `cascade` annotation is very effecient development wise, but extremely slow in performance especially when the relation map is complicated and dataset is large.
-
-**oasis/doctrine-addon** introduces another solution to the cascade removal problem, by providing the `CascadeRemoveTrait`. Any entity that wants to utilise the `CascadeRemoveTrait` must:
-
-- declare with the `ORM\HasLifecycleCallbacks` annotation
-- implement the `CascadeRemovableInterface`
-- use the `CascadeRemoveTrait`
-- use database provided schema to delete **strongly related entities**
-
-Implementing the `CascadeRemovableInterface` further requires implementation of the following two methods:
-
-- `getCascadeRemoveableEntities()`, which takes no arguments and returns an array of **strongly related entities**
-- `getDirtyEntitiesOnInvalidation()`, which takes no arguments and returns an array of **loosely related entities**
-
-> A **strongly related entity** is an entity that should also be removed when the current entity is removed.
-
-> A **loosely related entity** is an entity that holds a reference to the current entity, either directly (To-One relation) or through a collection (To-Many relation). This reference should be invalidated when the current entity is removed.
-
-The real removal of **strongly related entity** is achieved by database constraint, which must be `ON DELETE CASCADE`.
-
-## Code Sample (very simple CMS)
-
-Imagine we have a simple CMS that has 3 types of entities: Categroy, Article and Tag. The system must meet the following requirements:
-
-- An Article may belong to a Category
-- An Article and can have more than one Tag
-- Different Articles can share Tags
-
-Below is the implementation:
+`use AutoIdTrait` 即可获得自增整数主键 `$id` 和 `getId()` 方法：
 
 ```php
-<?php
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
-use Oasis\Mlib\Doctrine\AutoIdTrait;
-use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
-use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
-
 /**
- * Class Article
- *
  * @ORM\Entity()
- * @ORM\Table(name="articles")
- *
- * @ORM\HasLifecycleCallbacks()
  */
-class Article implements CascadeRemovableInterface
+class User
 {
-    use CascadeRemoveTrait;
     use AutoIdTrait;
-
-    /**
-     * @var Category
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="articles")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     */
-    protected $category;
-    /**
-     * @var ArrayCollection
-     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="articles")
-     * @ORM\JoinTable(name="article_tags",
-     *     inverseJoinColumns={@ORM\JoinColumn(name="tag", referencedColumnName="id", onDelete="CASCADE")},
-     *     joinColumns={@ORM\JoinColumn(name="`article`", referencedColumnName="id", onDelete="CASCADE")})
-     */
-    protected $tags;
-
-    public function __construct()
-    {
-        $this->tags = new ArrayCollection();
-    }
-
-    function __toString()
-    {
-        return sprintf("Article #%s", $this->getId());
-    }
-
-    public function addTag(Tag $tag)
-    {
-        if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
-            /** @noinspection PhpInternalEntityUsedInspection */
-            $tag->addArticle($this);
-        }
-    }
-
-    /**
-     * @return array an array of entities which will also be removed when the calling entity is remvoed
-     */
-    public function getCascadeRemoveableEntities()
-    {
-        return [];
-    }
-
-    /**
-     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
-     *               entity is removed.
-     */
-    public function getDirtyEntitiesOnInvalidation()
-    {
-        return $this->tags->toArray();
-    }
-
-    /**
-     * @return Category
-     */
-    public function getCategory()
-    {
-        return $this->category;
-    }
-
-    /**
-     * @param Category $category
-     */
-    public function setCategory($category)
-    {
-        if ($this->category == $category) {
-            return;
-        }
-        if ($this->category) {
-            /** @noinspection PhpInternalEntityUsedInspection */
-            $this->category->removeArticle($this);
-        }
-        $this->category = $category;
-        if ($category) {
-            /** @noinspection PhpInternalEntityUsedInspection */
-            $category->addArticle($this);
-        }
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getTags()
-    {
-        return $this->tags;
-    }
 }
 ```
 
+## The Cascade Removal Problem
+
+当 ORM 启用 Second Level Cache 并使用数据库 `ON DELETE CASCADE` 约束时，删除父 entity 后：
+
+1. **Identity map 脏数据** — `$em->find()` 仍然返回已被数据库删除的子 entity
+2. **二级缓存脏数据** — 缓存中仍持有已删除 entity 的数据
+3. **关联集合不一致** — 持有被删除 entity 引用的其他 entity，其集合未被刷新
+
+> 例如：Team entity 持有 User 集合。删除一个 User 后，访问 Team 的 members 集合仍会拿到已删除的 User 引用，导致异常。
+
+Doctrine 原生方案各有缺陷：
+
+- **手动失效**：复杂，关联链越深越容易遗漏
+- **`cascade={"remove"}`**：ORM 逐条发 DELETE 语句，关联复杂时性能极差
+
+## CascadeRemoveTrait Solution
+
+通过 Doctrine 生命周期回调，在 `PreRemove` 阶段递归收集关联实体，在 `PostRemove` 阶段统一 detach + evict + refresh。实际删除由数据库 `ON DELETE CASCADE` 完成。
+
+### Prerequisites
+
+- Entity 必须启用 Doctrine Second Level Cache（`@ORM\Cache` 注解）
+- 强关联实体的数据库外键必须设置 `ON DELETE CASCADE`
+
+### Usage
+
 ```php
-<?php
-
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
-use Oasis\Mlib\Doctrine\AutoIdTrait;
-use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
-use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
-
 /**
- * Class Category
- *
  * @ORM\Entity()
  * @ORM\Table(name="categories")
- *
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  * @ORM\HasLifecycleCallbacks()
  */
 class Category implements CascadeRemovableInterface
@@ -191,215 +63,54 @@ class Category implements CascadeRemovableInterface
     use CascadeRemoveTrait;
     use AutoIdTrait;
 
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Article", mappedBy="category")
-     */
+    /** @ORM\OneToMany(targetEntity="Article", mappedBy="category") */
     protected $articles;
 
-    /**
-     * @var Category
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="children")
-     * @ORM\JoinColumn(onDelete="SET NULL");
-     */
-    protected $parent;
-
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Category", mappedBy="parent")
-     */
-    protected $children;
-
-    public function __construct()
-    {
-        $this->articles = new ArrayCollection();
-        $this->children = new ArrayCollection();
-    }
-
-    function __toString()
-    {
-        return '111';
-    }
-
-    /**
-     * @param Article $article
-     *
-     * @internal
-     */
-    public function addArticle($article)
-    {
-        if (!$this->articles->contains($article)) {
-            $this->articles->add($article);
-        }
-    }
-
-    /**
-     * @param $child
-     *
-     * @internal
-     */
-    public function addChild($child)
-    {
-        if (!$this->children->contains($child)) {
-            $this->children->add($child);
-        }
-    }
-
-    /**
-     * @param Article $article
-     *
-     * @internal
-     */
-    public function removeArticle($article)
-    {
-        if ($this->articles->contains($article)) {
-            $this->articles->remove($article);
-        }
-    }
-
-    /**
-     * @param $child
-     *
-     * @internal
-     */
-    public function removeChild($child)
-    {
-        if ($this->children->contains($child)) {
-            $this->children->remove($child);
-        }
-    }
-
-    /**
-     * @return array an array of entities which will also be removed when the calling entity is remvoed
-     */
     public function getCascadeRemoveableEntities()
     {
+        // 强关联：删除 Category 时，其下的 Article 也应删除
         return $this->articles->toArray();
     }
 
-    /**
-     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
-     *               entity is removed.
-     */
     public function getDirtyEntitiesOnInvalidation()
     {
+        // 弱关联：无（Category 删除不需要刷新其他 entity 的缓存）
         return [];
     }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getChildren()
-    {
-        return $this->children;
-    }
-
-    /**
-     * @return Category
-     */
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    /**
-     * @param Category $parent
-     */
-    public function setParent($parent)
-    {
-        if ($this->parent) {
-            $this->parent->removeChild($this);
-        }
-        $this->parent = $parent;
-        if ($parent) {
-            $parent->addChild($this);
-        }
-    }
 }
-
 ```
 
-```php
-<?php
+### Key Concepts
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
-use Oasis\Mlib\Doctrine\AutoIdTrait;
-use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
-use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
+| 概念 | 说明 | `getCascadeRemoveableEntities()` 返回 |
+|------|------|--------------------------------------|
+| **强关联实体** | 当前实体删除时也应删除的实体 | Category → Article |
+| **弱关联实体** | 持有当前实体引用、需刷新缓存的实体 | Article → Tag（通过 `getDirtyEntitiesOnInvalidation()`） |
 
-/**
- * Class Tag
- *
- * @ORM\Entity()
- *
- * @ORM\HasLifecycleCallbacks()
- */
-class Tag implements CascadeRemovableInterface
-{
-    use CascadeRemoveTrait;
-    use AutoIdTrait;
+### What the Trait Does
 
-    /**
-     * @var ArrayCollection
-     *
-     * @ORM\ManyToMany(targetEntity="Article", mappedBy="tags")
-     */
-    protected $articles;
+| 阶段 | 强关联实体 | 弱关联实体 |
+|------|-----------|-----------|
+| PreRemove | 递归收集 | 收集（排除已在强关联列表中的） |
+| PostRemove | detach from EM + evict from L2 cache | evict from L2 cache + refresh from DB |
 
-    public function __construct()
-    {
-        $this->articles = new ArrayCollection();
-    }
+完整的 CMS 示例（Category / Article / Tag）见 `ut/Entity/` 目录。
 
-    function __toString()
-    {
-        return sprintf("Tag #%s", $this->getId());
-    }
+## Development
 
-    /**
-     * @param Article $article
-     * @internal
-     */
-    public function addArticle(Article $article)
-    {
-        if (!$this->articles->contains($article)) {
-            $this->articles->add($article);
-        }
-    }
+```bash
+# 安装依赖
+composer install
 
-    /**
-     * @return ArrayCollection
-     */
-    public function getArticles()
-    {
-        return $this->articles;
-    }
+# 运行测试（零外部依赖，使用 SQLite in-memory）
+vendor/bin/phpunit
 
-    /**
-     * @return array an array of entities which will also be removed when the calling entity is remvoed
-     */
-    public function getCascadeRemoveableEntities()
-    {
-        return [];
-    }
-
-    /**
-     * @return array an array of entities asscociated to the calling entity, which should be detached when calling
-     *               entity is removed.
-     */
-    public function getDirtyEntitiesOnInvalidation()
-    {
-        return $this->articles->toArray();
-    }
-}
-
+# 覆盖率报告（需要 pcov 扩展）
+vendor/bin/phpunit --coverage-text --whitelist=src/
 ```
 
-> **NOTE**: there is always one side and only one side in a bidirectional relation, that should be accessed by the outside users. In this example, you `setCategory()` on an Article, and you never call `addArticle()` directly on a Category. To further ensure this behavior and let the IDE helps us locate potential bug, we should decalre the _hidden_ method `@internal` so that every call from outside will trigger a warning.
+详见 `docs/manual/development.md`。
 
-> **HOMEWORK**: there is only `addTag()` method on an Article. You can try to write your implementation of `removeTag()` method to futher familiarize yourself with the ORM tool.
+## License
 
-
-[Doctrine]: http://doctrine-project.org/
-[doctrine/orm]: http://doctrine-project.org/projects/orm.html
+MIT

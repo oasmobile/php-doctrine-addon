@@ -6,7 +6,10 @@
 >
     <testsuites>
         <testsuite name="all">
-            <file>ut/CascadeRemoveTest.php</file>
+            <file>ut/Test/AutoIdTraitTest.php</file>
+            <file>ut/Test/CascadeRemoveTest.php</file>
+            <file>ut/Test/CascadeRemoveTraitTest.php</file>
+            <file>ut/Test/CascadeRemoveContrastTest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

@@ -1,12 +1,12 @@
 <?php
 namespace Oasis\Mlib\Doctrine\Ut;
 
-use Doctrine\Common\Cache\MemcachedCache;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Cache\DefaultCacheFactory;
 use Doctrine\ORM\Cache\RegionsConfiguration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * Created by PhpStorm.
@@ -16,55 +16,50 @@ use Doctrine\ORM\Tools\Setup;
  */
 class TestEnv
 {
+    /** @var EntityManager|null */
+    private static $entityManager = null;
+
     public static function getEntityManager()
     {
-        static $entityManager = null;
-        if ($entityManager instanceof EntityManager && $entityManager->isOpen()) {
-            return $entityManager;
+        if (self::$entityManager instanceof EntityManager && self::$entityManager->isOpen()) {
+            return self::$entityManager;
         }
 
-        $memcached = new \Memcached();
-        $memcached->addServer(self::getConfig('memcached.host'), self::getConfig('memcached.port'));
-        $memcache = new MemcachedCache();
-        $memcache->setMemcached($memcached);
         $isDevMode = true;
         $config    = Setup::createAnnotationMetadataConfiguration(
-            [__DIR__],
+            [__DIR__ . '/Entity'],
             $isDevMode,
             null,
-            $memcache,
+            null,
             false
         );
-        $config->addEntityNamespace("", "Oasis\\Mlib\\Doctrine\\Ut");
-        //$config->setSQLLogger(new EchoSQLLogger());
-
+        // Entity namespace aliases removed (not supported by doctrine/persistence 3.x)
+        // Tests use FQCN instead of short aliases like ":Article"
+        $cachePool = new ArrayAdapter();
         $regconfig = new RegionsConfiguration();
-        $factory   = new DefaultCacheFactory($regconfig, $memcache);
+        $factory   = new DefaultCacheFactory($regconfig, $cachePool);
         $config->setSecondLevelCacheEnabled();
         $config->getSecondLevelCacheConfiguration()->setCacheFactory($factory);
 
-        $connectionInfo = self::getConfig('connection');
+        $connectionInfo = [
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
+        ];
         $connection     = DriverManager::getConnection($connectionInfo);
-        $entityManager  = EntityManager::create($connection, $config);
+        $connection->executeStatement('PRAGMA foreign_keys = ON');
+        self::$entityManager = EntityManager::create($connection, $config);
 
-        return $entityManager;
+        return self::$entityManager;
     }
 
-    public static function getConfig($key)
+    /**
+     * Reset the EntityManager (e.g. between tests that need a fresh DB).
+     */
+    public static function resetEntityManager()
     {
-        static $config = [
-            "memcached.host" => "localhost",
-            "memcached.port" => 11211,
-
-            "connection" => [
-                "driver"   => "pdo_mysql",
-                "host"     => "localhost",
-                "user"     => "doctrine_addon",
-                "password" => "123456",
-                "dbname"   => "doctrine_addon",
-            ],
-        ];
-
-        return $config[$key];
+        if (self::$entityManager) {
+            self::$entityManager->close();
+            self::$entityManager = null;
+        }
     }
 }

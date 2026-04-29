@@ -6,7 +6,7 @@
  * Time: 14:48
  */
 
-namespace Oasis\Mlib\Doctrine\Ut;
+namespace Oasis\Mlib\Doctrine\Ut\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,6 +21,7 @@ use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
  *
  * @ORM\Entity()
  * @ORM\Table(name="articles")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  *
  * @ORM\HasLifecycleCallbacks()
  */

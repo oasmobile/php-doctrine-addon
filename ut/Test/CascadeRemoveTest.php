@@ -6,27 +6,31 @@
  * Time: 15:01
  */
 
-namespace Oasis\Mlib\Doctrine\Ut;
+namespace Oasis\Mlib\Doctrine\Ut\Test;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\SchemaTool;
+use Oasis\Mlib\Doctrine\Ut\Entity\Article;
+use Oasis\Mlib\Doctrine\Ut\Entity\Category;
+use Oasis\Mlib\Doctrine\Ut\Entity\Tag;
+use Oasis\Mlib\Doctrine\Ut\TestEnv;
 
-class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
+class CascadeRemoveTest extends \PHPUnit\Framework\TestCase
 {
     /** @var  EntityManager */
     protected $entityManger;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        $olddir = getcwd();
-        chdir(__DIR__);
-        system("../vendor/bin/doctrine orm:clear-cache:meta");
-        system("../vendor/bin/doctrine orm:schema-tool:drop -f");
-        system("../vendor/bin/doctrine orm:schema-tool:create");
-        chdir($olddir);
+        TestEnv::resetEntityManager();
+        $em   = TestEnv::getEntityManager();
+        $tool = new SchemaTool($em);
+        $tool->dropDatabase();
+        $tool->createSchema($em->getMetadataFactory()->getAllMetadata());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -56,10 +60,10 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $this->entityManger->remove($category);
         $this->entityManger->flush();
 
-        $article2 = $this->entityManger->find(":Article", $articleId);
+        $article2 = $this->entityManger->find(Article::class, $articleId);
         $this->assertNull($article2);
         /** @var Category $subCategory */
-        $subCategory2 = $this->entityManger->find(":Category", $subId);
+        $subCategory2 = $this->entityManger->find(Category::class, $subId);
         $this->assertNotNull($subCategory2);
         $this->assertNotNull(
             $categoryId,
@@ -115,16 +119,16 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $this->entityManger->flush();
 
         /** @var Article $a1 */
-        $a1 = $this->entityManger->find(':Article', $a1->getId());
+        $a1 = $this->entityManger->find(Article::class, $a1->getId());
         $this->assertEquals(1, sizeof($a1->getTags()));
 
-        $a3 = $this->entityManger->find(':Article', $a3id);
+        $a3 = $this->entityManger->find(Article::class, $a3id);
         $this->entityManger->remove($a3);
         $this->entityManger->flush();
         $this->entityManger->flush();
 
         /** @var Tag $t2 */
-        $t2 = $this->entityManger->find(':Tag', $t2->getId());
+        $t2 = $this->entityManger->find(Tag::class, $t2->getId());
         $this->assertEquals(1, sizeof($t2->getArticles()));
 
     }
@@ -137,11 +141,16 @@ class CascadeRemoveTest extends \PHPUnit_Framework_TestCase
         $this->entityManger->persist($tag);
         $article->addTag($tag);
         $this->entityManger->flush();
+
+        $articleId = $article->getId();
+        $tagId     = $tag->getId();
         
         $this->entityManger->remove($article);
         $this->entityManger->remove($tag);
         $this->entityManger->flush();
-    
+
+        $this->assertNull($this->entityManger->find(Article::class, $articleId));
+        $this->assertNull($this->entityManger->find(Tag::class, $tagId));
     }
 
 }
