@@ -50,8 +50,6 @@ PHP 8.5 已正式发布，PHPUnit 13 要求 PHP ≥ 8.4，Eris 1.x 已支持 PHP
 ## Non-Goals
 
 - 不迁移到 Doctrine ORM 3.x（ORM 2.x 仍在维护窗口内，至少到 2027-02）
-- 不将 Doctrine Annotation 迁移到 PHP Attribute（属于独立重构，可另开 proposal）
-- 不变更 `oasis/logging` 依赖（需确认上游兼容性，但不在本 proposal 范围内主动升级其大版本）
 - 不新增业务功能
 
 ---
@@ -64,9 +62,10 @@ PHP 8.5 已正式发布，PHPUnit 13 要求 PHP ≥ 8.4，Eris 1.x 已支持 PHP
 |------|----------|----------|------|
 | `php` | 未声明 | `^8.4` | 显式声明最低 PHP 版本 |
 | `doctrine/orm` | `^2.7` | `^2.20` | 收窄到实际兼容范围 |
-| `doctrine/annotations` | `^1.13` | `^1.13`（暂保留） | ORM 2.x 仍依赖，待 Attribute 迁移时移除 |
+| `doctrine/annotations` | `^1.13` | 移除 | 迁移到 PHP Attribute 后不再需要 |
 | `phpunit/phpunit` | `^8.5` | `^13.0` | 跨大版本升级 |
 | `symfony/cache` | `^5.4` | `^7.2` | 升级到活跃维护版本 |
+| `oasis/logging` | `^1.1` | 升级到最新版本 | 升级到 PHP 8.5 兼容版本 |
 | `giorgiosironi/eris` | 无 | `^1.0` | 新增 PBT 依赖 |
 
 ### 代码适配
@@ -74,6 +73,8 @@ PHP 8.5 已正式发布，PHPUnit 13 要求 PHP ≥ 8.4，Eris 1.x 已支持 PHP
 - PHPUnit 8 → 13 的 API 变更（TestCase 方法签名、assertion 变更、`phpunit.xml` schema 等）
 - `TestEnv.php` 中已 deprecated 的 Doctrine API 调用（`Setup::createAnnotationMetadataConfiguration`、`EntityManager::create`）
 - `phpunit.xml` 配置格式升级
+- Doctrine Annotation → PHP Attribute 迁移（entity 映射、生命周期回调等）
+- `doctrine/annotations` 依赖移除
 
 ### 测试
 
@@ -92,6 +93,4 @@ PHP 8.5 已正式发布，PHPUnit 13 要求 PHP ≥ 8.4，Eris 1.x 已支持 PHP
 
 ## Notes
 
-- `oasis/logging` ^1.1 当前依赖 `monolog/monolog` 1.x，需在 spec 阶段验证其在 PHP 8.5 下的兼容性；若不兼容则需协调上游或 fork
-- `doctrine/annotations` 虽已 abandoned，但 ORM 2.x 仍需要它；迁移到 Attribute 是独立工作，建议另开 proposal
 - PHPUnit 8 → 13 跨越多个大版本，需关注 `setUp`/`tearDown` 返回类型、`assertContains` 行为变更、mock API 变更等
