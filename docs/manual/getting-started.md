@@ -38,32 +38,49 @@ class User
 
 ### 问题背景
 
-当 ORM 启用 Second Level Cache 时，删除一个 entity 后，与之关联的 entity 缓存可能未及时失效，导致访问时抛出异常。
+当使用数据库 `ON DELETE CASCADE` 约束来级联删除关联记录时，Doctrine ORM 对此一无所知。删除父 entity 后：
+
+1. **Identity map 脏数据**：`$em->find()` 仍然从 identity map 返回已被数据库删除的子 entity
+2. **Second Level Cache 脏数据**：即使 `$em->clear()` 后，二级缓存仍然持有已删除 entity 的数据
+3. **关联集合不一致**：持有被删除 entity 引用的其他 entity，其集合未被刷新
 
 Doctrine 原生方案：
 
 - 手动逐一失效：复杂且易遗漏
-- `cascade={"remove"}`：开发简单但性能差，尤其在关联链较深时
+- `cascade={"remove"}`：开发简单但性能差，ORM 逐条发 DELETE 语句
 
 ### 本组件方案
 
-通过 Doctrine 生命周期回调，在 PreRemove 阶段递归收集关联实体，在 PostRemove 阶段统一 detach 和 refresh 缓存。实际删除由数据库 `ON DELETE CASCADE` 约束完成，避免 ORM 层逐条删除的性能问题。
+通过 Doctrine 生命周期回调，在 `PreRemove` 阶段递归收集关联实体，在 `PostRemove` 阶段统一执行：
+
+- **强关联实体**：从 EntityManager detach + 从二级缓存 evict
+- **弱关联实体**：从二级缓存 evict + refresh（重新从数据库加载）
+
+实际删除由数据库 `ON DELETE CASCADE` 约束完成，避免 ORM 层逐条删除的性能问题。
+
+### 使用前提
+
+- 使用方必须启用 Doctrine Second Level Cache（entity 声明 `@ORM\Cache` 注解 + ORM 配置中开启二级缓存）
+- 强关联实体的数据库外键必须设置 `ON DELETE CASCADE`
 
 ### 使用步骤
 
 1. entity 添加 `@ORM\HasLifecycleCallbacks` 注解
-2. 实现 `CascadeRemovableInterface`
-3. `use CascadeRemoveTrait`
-4. 数据库外键设置 `ON DELETE CASCADE`
+2. entity 添加 `@ORM\Cache` 注解
+3. 实现 `CascadeRemovableInterface`
+4. `use CascadeRemoveTrait`
+5. 数据库外键设置 `ON DELETE CASCADE`
 
 ```php
 use Doctrine\ORM\Mapping as ORM;
+use Oasis\Mlib\Doctrine\AutoIdTrait;
 use Oasis\Mlib\Doctrine\CascadeRemovableInterface;
 use Oasis\Mlib\Doctrine\CascadeRemoveTrait;
 
 /**
  * @ORM\Entity()
  * @ORM\Table(name="articles")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
  * @ORM\HasLifecycleCallbacks()
  */
 class Article implements CascadeRemovableInterface
@@ -71,15 +88,23 @@ class Article implements CascadeRemovableInterface
     use CascadeRemoveTrait;
     use AutoIdTrait;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="articles")
+     * @ORM\JoinTable(name="article_tags",
+     *     inverseJoinColumns={@ORM\JoinColumn(onDelete="CASCADE")},
+     *     joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     */
+    protected $tags;
+
     public function getCascadeRemoveableEntities()
     {
-        // 返回删除当前实体时也应删除的实体
+        // 返回删除当前实体时也应删除的实体（强关联）
         return [];
     }
 
     public function getDirtyEntitiesOnInvalidation()
     {
-        // 返回持有当前实体引用、需要刷新缓存的实体
+        // 返回持有当前实体引用、需要刷新缓存的实体（弱关联）
         return $this->tags->toArray();
     }
 }

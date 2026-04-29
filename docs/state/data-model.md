@@ -43,7 +43,8 @@ entity 实现此接口以启用级联删除缓存失效机制。
 ### 使用前提
 
 - entity 必须声明 `@ORM\HasLifecycleCallbacks` 注解
-- entity 必须实现 `CascadeRemovableInterface`
+- entity 必须实现 `CascadeRemovableInterface`（否则 `onPreRemove` 抛出 `LogicException`）
+- entity 必须声明 `@ORM\Cache` 注解以启用 Second Level Cache
 - 强关联实体的数据库外键必须设置 `ON DELETE CASCADE`
 
 ### 内部字段
@@ -57,8 +58,15 @@ entity 实现此接口以启用级联删除缓存失效机制。
 
 | 回调 | 阶段 | 行为 |
 |------|------|------|
-| `onPreRemove` | `@ORM\PreRemove` | 递归收集强关联实体和弱关联实体 |
-| `onPostRemove` | `@ORM\PostRemove` | detach 强关联实体并清除缓存；refresh 弱关联实体并清除缓存 |
+| `onPreRemove` | `@ORM\PreRemove` | 递归收集强关联实体和弱关联实体；校验接口实现 |
+| `onPostRemove` | `@ORM\PostRemove` | detach 强关联实体并从二级缓存 evict；refresh 弱关联实体并从二级缓存 evict |
+
+### onPostRemove 中的跳过逻辑
+
+对于弱关联实体（dirty entity），以下情况跳过 refresh：
+
+- 该实体已被调度删除（`isScheduledForDelete`）
+- 该实体不在 identity map 中（`!isInIdentityMap`）
 
 ---
 

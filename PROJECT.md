@@ -6,9 +6,9 @@ Doctrine ORM 扩展组件，提供自动 ID trait 和级联删除缓存失效机
 
 ## 技术栈
 
-- 语言：PHP
-- 框架/依赖：Doctrine ORM ^2.5, oasis/logging ^1.1
-- 测试：PHPUnit ^5.3
+- 语言：PHP 7.4+
+- 框架/依赖：Doctrine ORM ^2.7, doctrine/annotations ^1.13, oasis/logging ^1.1
+- 测试：PHPUnit ^8.5
 - 包管理：Composer
 
 ---
@@ -16,7 +16,9 @@ Doctrine ORM 扩展组件，提供自动 ID trait 和级联删除缓存失效机
 ## 命名空间
 
 - 源码：`Oasis\Mlib\Doctrine\` → `src/`
-- 测试：`Oasis\Mlib\Doctrine\Ut\` → `ut/`
+- 测试环境：`Oasis\Mlib\Doctrine\Ut\` → `ut/`
+- 测试 Entity：`Oasis\Mlib\Doctrine\Ut\Entity\` → `ut/Entity/`
+- 测试用例：`Oasis\Mlib\Doctrine\Ut\Test\` → `ut/Test/`
 
 ---
 
@@ -26,28 +28,18 @@ Doctrine ORM 扩展组件，提供自动 ID trait 和级联删除缓存失效机
 # 安装依赖
 composer install
 
-# 运行全量测试（需要 MySQL + Memcached）
+# 运行全量测试（零外部依赖，使用 SQLite in-memory）
 vendor/bin/phpunit
+
+# 运行测试并生成覆盖率报告（需要 pcov 扩展）
+vendor/bin/phpunit --coverage-text --whitelist=src/
 ```
-
----
-
-## 测试环境依赖
-
-- MySQL：`localhost`，数据库 `doctrine_addon`，用户 `doctrine_addon`，密码见 `ut/TestEnv.php`
-- Memcached：`localhost:11211`
 
 ---
 
 ## 版本号位置
 
 - `composer.json` → `version` 字段（当前未显式声明，由 Packagist 从 git tag 推断）
-
----
-
-## 敏感文件
-
-- `ut/TestEnv.php`：包含数据库连接凭据（仅用于本地测试）
 
 ---
 

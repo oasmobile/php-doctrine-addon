@@ -8,7 +8,7 @@
 
 namespace Oasis\Mlib\Doctrine;
 
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 
 interface CascadeRemovableInterface
 {
