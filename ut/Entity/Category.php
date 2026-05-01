@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Created by PhpStorm.
  * User: minhao
@@ -77,7 +79,7 @@ class Category implements CascadeRemovableInterface
     public function removeArticle($article)
     {
         if ($this->articles->contains($article)) {
-            $this->articles->remove($article);
+            $this->articles->removeElement($article);
         }
     }
     
@@ -89,7 +91,7 @@ class Category implements CascadeRemovableInterface
     public function removeChild($child)
     {
         if ($this->children->contains($child)) {
-            $this->children->remove($child);
+            $this->children->removeElement($child);
         }
     }
     

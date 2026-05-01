@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Oasis\Mlib\Doctrine\Ut;
 
 use Doctrine\DBAL\DriverManager;
@@ -26,10 +28,11 @@ class TestEnv
         }
 
         $isDevMode = true;
-        $config    = ORMSetup::createAttributeMetadataConfiguration(
+        $config    = ORMSetup::createAttributeMetadataConfig(
             [__DIR__ . '/Entity'],
             $isDevMode
         );
+        $config->enableNativeLazyObjects(true);
         // Entity namespace aliases removed (not supported by doctrine/persistence 3.x)
         // Tests use FQCN instead of short aliases like ":Article"
         $cachePool = new ArrayAdapter();

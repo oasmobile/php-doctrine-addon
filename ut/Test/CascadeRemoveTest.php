@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Created by PhpStorm.
  * User: minhao
@@ -66,15 +68,10 @@ class CascadeRemoveTest extends \PHPUnit\Framework\TestCase
         $subCategory2 = $this->entityManger->find(Category::class, $subId);
         $this->assertNotNull($subCategory2);
         $this->assertNotNull(
-            $categoryId,
             $subCategory2->getParent()
         ); // the parent is still a Category object, this should be null if we cascade remove all children
 
-        $this->entityManger->detach($article);
-        $this->entityManger->detach($subCategory);
-        $this->entityManger->detach($category);
-        $this->entityManger->detach($grandchildrenCategory);
-        $this->entityManger->flush();
+        $this->entityManger->clear();
     }
 
     public function testCircularCascadeRemove()
