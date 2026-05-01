@@ -70,14 +70,14 @@
   - ~~3.3 删除仅测试 CascadeRemoveTrait 行为的测试文件~~
   - ~~3.4 Checkpoint: 确认移除完成，commit~~
 
-- [ ] 4. [IF 保留路径] 替代 CascadeRemoveTrait 中的 UnitOfWork Internal API
+- [x] 4. [IF 保留路径] 替代 CascadeRemoveTrait 中的 UnitOfWork Internal API
   - **前置条件**：Task 2 判定结果为保留路径（ORM 3 未完全解决脏数据问题）
-  - [ ] 4.1 替换 `src/CascadeRemoveTrait.php` 中的 3 处 `getEntityIdentifier()` 调用
+  - [x] 4.1 替换 `src/CascadeRemoveTrait.php` 中的 3 处 `getEntityIdentifier()` 调用
     - 将 `$em->getUnitOfWork()->getEntityIdentifier($entity)` 替换为 `$em->getClassMetadata(get_class($entity))->getIdentifierValues($entity)`
     - 涉及 `findCascadeDetachableEntities()` 方法中 2 处、`onPreRemove()` 方法中 1 处
     - 参考 design Components §3.1
     - _Requirements: 6.1, 6.2_
-  - [ ] 4.2 替换 `src/CascadeRemoveTrait.php` 中的 `isScheduledForDelete()` + `isInIdentityMap()` 调用
+  - [x] 4.2 替换 `src/CascadeRemoveTrait.php` 中的 `isScheduledForDelete()` + `isInIdentityMap()` 调用
     - 将 `onPostRemove()` 中的条件判断：
       ```php
       if ($em->getUnitOfWork()->isScheduledForDelete($entity)
@@ -94,17 +94,17 @@
       ```
     - 参考 design Components §3.2, §3.3
     - _Requirements: 6.1, 6.2_
-  - [ ] 4.3 验证 CascadeRemoveTrait 中无 UnitOfWork 调用残留
+  - [x] 4.3 验证 CascadeRemoveTrait 中无 UnitOfWork 调用残留
     - 执行 `grep -n 'getUnitOfWork\|UnitOfWork' src/CascadeRemoveTrait.php` 确认返回空结果
     - _Requirements: 6.2_
-  - [ ] 4.4 Checkpoint: 执行全量测试确认行为等价性，commit
+  - [x] 4.4 Checkpoint: 执行全量测试确认行为等价性，commit
     - 执行 `vendor/bin/phpunit` 确认全量测试通过（exit code 0）且零 deprecation warning
     - 现有 PBT 测试（Property 3: 强关联实体清理、Property 4: 弱关联实体刷新，4 种拓扑 × 100 次迭代）提供行为等价性回归保护
     - design 已确认所有替代方案均使用 EntityManager public API，无需自维护状态跟踪（Req 6 AC4 不触发）
     - commit message 参考：`refactor: replace UnitOfWork internal API with EntityManager public API`
     - _Requirements: 6.3, 6.4_
 
-- [ ] 5. Contrast_Test 断言反转 + PHPUnit 配置更新
+- [-] 5. Contrast_Test 断言反转 + PHPUnit 配置更新
   - [ ] 5.1 [IF 移除路径] 移除 With-trait 用例并反转 Without-trait 断言
     - **前置条件**：Task 2 判定结果为移除路径
     - 在 `ut/Test/CascadeRemoveContrastTest.php` 中：
@@ -115,7 +115,7 @@
       - 反转 `testWithoutTrait_StaleCollectionReference`：`assertNotNull($article->getCategory())` → `assertNull($article->getCategory())`，更新断言消息
     - 参考 design Components §5.1
     - _Requirements: 7.1, 7.3_
-  - [ ] 5.2 [IF 保留路径] 按场景反转 Without-trait 断言
+  - [x] 5.2 [IF 保留路径] 按场景反转 Without-trait 断言
     - **前置条件**：Task 2 判定结果为保留路径
     - 在 `ut/Test/CascadeRemoveContrastTest.php` 中：
       - 保留全部 With-trait 和 Without-trait 用例
@@ -129,10 +129,10 @@
     - 移除 `<file>ut/Test/CascadeRemoveTraitPbtTest.php</file>`
     - 保留 `bootstrap="ut/bootstrap.php"` 属性不变
     - _Requirements: 10.1, 10.3_
-  - [ ] 5.4 [IF 保留路径] 确认 `phpunit.xml` 无需变更
+  - [x] 5.4 [IF 保留路径] 确认 `phpunit.xml` 无需变更
     - 保留路径下 test suite 定义不变，无需修改
     - _Requirements: 10.2, 10.3_
-  - [ ] 5.5 Checkpoint: 执行全量测试确认路径操作完成，commit
+  - [-] 5.5 Checkpoint: 执行全量测试确认路径操作完成，commit
     - 执行 `vendor/bin/phpunit` 确认全量测试通过（exit code 0）且零 deprecation warning
     - 确认测试数量与路径一致（移除路径：减少 3 个测试文件；保留路径：测试文件数量不变）
     - commit message 参考：`test: update contrast test assertions and phpunit config for <移除/保留> path`
