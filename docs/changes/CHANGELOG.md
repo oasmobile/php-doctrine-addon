@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.1.0 - 2025-07-17
+
+升级 Doctrine ORM 至 ^3.6 / DBAL ^4.4，消除 abandoned 依赖，CascadeRemoveTrait 改用 EntityManager public API。详见 [3.1.0/CHANGELOG.md](3.1.0/CHANGELOG.md)。
+
 ## v3.0.0 - 2025-07-16
 
 全面升级工具链：PHP ^8.4、PHPUnit ^13.0、Doctrine Attribute 迁移、引入 Eris PBT。详见 [3.0.0/CHANGELOG.md](3.0.0/CHANGELOG.md)。
