@@ -8,8 +8,8 @@
 
 ## Tasks
 
-- [ ] 1. Composer 依赖升级 + TestEnv 适配 + CLI 适配 + 源码适配
-  - [ ] 1.1 修改 `composer.json` 依赖约束并执行 `composer update`
+- [x] 1. Composer 依赖升级 + TestEnv 适配 + CLI 适配 + 源码适配
+  - [x] 1.1 修改 `composer.json` 依赖约束并执行 `composer update`
     - 将 `require` 段的 `doctrine/orm` 从 `^2.20` 改为 `^3.6`
     - `doctrine/dbal` 无需显式声明——ORM ^3.6 会自动拉入 DBAL ^4.4 作为传递依赖
     - `require-dev` 中的 `phpunit/phpunit`、`symfony/cache`、`giorgiosironi/eris` 版本约束不变
@@ -17,7 +17,7 @@
     - 验证 `composer.lock` 中 `doctrine/orm` 版本 ≥ 3.6，`doctrine/dbal` 版本 ≥ 4.4
     - 验证 `composer.lock` 中不包含 `doctrine/cache` 和 `doctrine/common`
     - _Requirements: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3_
-  - [ ] 1.2 适配 `ut/TestEnv.php`
+  - [x] 1.2 适配 `ut/TestEnv.php`
     - 将 `ORMSetup::createAttributeMetadataConfiguration(...)` 替换为 `ORMSetup::createAttributeMetadataConfig(...)`（ORM 3.5+ deprecated 旧方法名）
     - 在 `$config` 创建后添加 `$config->enableNativeLazyObjects(true)`（PHP 8.4+ 环境下 ORM 3.5+ 要求）
     - EntityManager 构造方式 `new EntityManager($connection, $config)` 无需变更（ORM 3.6 仍为 public 构造函数）
@@ -25,26 +25,26 @@
     - SQLite FK 约束 `PRAGMA foreign_keys = ON` 无需变更（已启用）
     - 参考 design Components §2
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
-  - [ ] 1.3 适配 `ut/cli-config.php`
+  - [x] 1.3 适配 `ut/cli-config.php`
     - 将 `return ConsoleRunner::createHelperSet($entityManager)` 替换为 `ConsoleRunner::run(new SingleManagerProvider($entityManager))`
     - 添加 `use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider`
     - 参考 design Components §7
     - _Requirements: 9.1, 9.2_
-  - [ ] 1.4 验证源码 ORM 3 API 兼容性
+  - [x] 1.4 验证源码 ORM 3 API 兼容性
     - 确认 `src/CascadeRemovableInterface.php` 中 `Doctrine\Persistence\Event\LifecycleEventArgs` import 在 ORM 3 中仍有效（design 研究已确认无需变更）
     - 确认 `src/CascadeRemoveTrait.php` 中 `$em->detach()`、`$em->getCache()->evictEntity()`、`$em->refresh()` 在 ORM 3 中均为 public API（design 研究已确认无需变更）
     - 确认所有 Entity Fixture 的 PHP 8 Attribute mapping 在 ORM 3 中兼容（release-3.0 已完成迁移）
     - 参考 design Components §6
     - _Requirements: 8.1, 8.2, 8.3_
-  - [ ] 1.5 Checkpoint: 执行全量测试确认基础适配完成，commit
+  - [x] 1.5 Checkpoint: 执行全量测试确认基础适配完成，commit
     - 执行 `vendor/bin/phpunit` 确认全量测试通过（exit code 0）且零 deprecation warning
     - 确认 `composer install` 无 abandoned package warning
     - 如有测试失败或 deprecation warning，先修复再继续（Req 12 范畴）
     - commit message 参考：`chore: upgrade doctrine/orm to ^3.6, adapt TestEnv and CLI config`
     - _Requirements: 11.1, 11.2_
 
-- [ ] 2. 验证 ORM 3 对脏数据问题的原生解决情况
-  - [ ] 2.1 运行 Contrast_Test 的三个 Without-trait 用例并记录结果
+- [-] 2. 验证 ORM 3 对脏数据问题的原生解决情况
+  - [x] 2.1 运行 Contrast_Test 的三个 Without-trait 用例并记录结果
     - 执行 `vendor/bin/phpunit --filter 'testWithoutTrait_' ut/Test/CascadeRemoveContrastTest.php`
     - 记录三个场景的通过/失败状态：
       - `testWithoutTrait_IdentityMapReturnsStaleEntity`：当前断言 `assertNotNull($stale)`，如果 ORM 3 已修复则此用例会**失败**（因为 `find()` 返回 null 而非 stale entity）
@@ -53,7 +53,7 @@
     - **路径判定规则**：三个用例全部失败 → 移除路径（Req 5）；任一用例通过 → 保留路径（Req 6）
     - 参考 design Architecture 处置路径决策树
     - _Requirements: 4.1, 4.2, 4.3_
-  - [ ] 2.2 Checkpoint: 记录路径判定结果并告知用户，commit
+  - [-] 2.2 Checkpoint: 记录路径判定结果并告知用户，commit
     - 明确输出：走移除路径还是保留路径
     - 如果部分场景修复、部分未修复，列出具体哪些已修复哪些未修复
     - commit message 参考：`test: verify ORM 3 native dirty-data behavior, path decision: <移除/保留>`
