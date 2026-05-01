@@ -10,9 +10,10 @@ declare(strict_types=1);
 namespace Oasis\Mlib\Doctrine\Ut;
 
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 
 require_once __DIR__ . '/bootstrap.php';
 
 $entityManager = TestEnv::getEntityManager();
 
-return ConsoleRunner::createHelperSet($entityManager);
+ConsoleRunner::run(new SingleManagerProvider($entityManager));
