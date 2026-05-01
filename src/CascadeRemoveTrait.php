@@ -60,7 +60,7 @@ trait CascadeRemoveTrait
         }
         $this->dirtyEntities = [];
         foreach ($dirtyEntities as $dirtyEntity) {
-            $id  = $em->getUnitOfWork()->getEntityIdentifier($dirtyEntity);
+            $id  = $em->getClassMetadata(get_class($dirtyEntity))->getIdentifierValues($dirtyEntity);
             $key = serialize([get_class($dirtyEntity), $id]);
             if (array_key_exists($key, $this->removedEntities)) {
                 continue;
@@ -80,9 +80,7 @@ trait CascadeRemoveTrait
             $em->getCache()->evictEntity(get_class($entity), $id);
         }
         foreach ($this->dirtyEntities as $key => $entity) {
-            if ($em->getUnitOfWork()->isScheduledForDelete($entity)
-                || !$em->getUnitOfWork()->isInIdentityMap($entity)
-            ) {
+            if (!$em->contains($entity)) {
                 continue;
             }
             list(, $id) = unserialize($key);
@@ -105,13 +103,13 @@ trait CascadeRemoveTrait
                                                    &$visited = [],
                                                    $depth = 0)
     {
-        $id            = $em->getUnitOfWork()->getEntityIdentifier($entity);
+        $id            = $em->getClassMetadata(get_class($entity))->getIdentifierValues($entity);
         $key           = serialize([get_class($entity), $id]);
         $visited[$key] = $entity;
         
         $entities = $entity->getCascadeRemoveableEntities();
         foreach ($entities as $subEntity) {
-            $id  = $em->getUnitOfWork()->getEntityIdentifier($subEntity);
+            $id  = $em->getClassMetadata(get_class($subEntity))->getIdentifierValues($subEntity);
             $key = serialize([get_class($subEntity), $id]);
             if (array_key_exists($key, $visited)) {
                 continue;

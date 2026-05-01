@@ -65,8 +65,7 @@ entity 实现此接口以启用级联删除缓存失效机制。
 
 对于弱关联实体（dirty entity），以下情况跳过 refresh：
 
-- 该实体已被调度删除（`isScheduledForDelete`）
-- 该实体不在 identity map 中（`!isInIdentityMap`）
+- 该实体不再被 EntityManager 管理（`!$em->contains($entity)`），即已被调度删除或不在 identity map 中
 
 ---
 
