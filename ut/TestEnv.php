@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Oasis\Mlib\Doctrine\Ut;
 
 use Doctrine\DBAL\DriverManager;
