@@ -43,7 +43,7 @@
     - commit message 参考：`chore: upgrade doctrine/orm to ^3.6, adapt TestEnv and CLI config`
     - _Requirements: 11.1, 11.2_
 
-- [-] 2. 验证 ORM 3 对脏数据问题的原生解决情况
+- [x] 2. 验证 ORM 3 对脏数据问题的原生解决情况
   - [x] 2.1 运行 Contrast_Test 的三个 Without-trait 用例并记录结果
     - 执行 `vendor/bin/phpunit --filter 'testWithoutTrait_' ut/Test/CascadeRemoveContrastTest.php`
     - 记录三个场景的通过/失败状态：
@@ -53,33 +53,22 @@
     - **路径判定规则**：三个用例全部失败 → 移除路径（Req 5）；任一用例通过 → 保留路径（Req 6）
     - 参考 design Architecture 处置路径决策树
     - _Requirements: 4.1, 4.2, 4.3_
-  - [-] 2.2 Checkpoint: 记录路径判定结果并告知用户，commit
+    - **执行结果**：三个用例全部通过（OK, 3 tests, 5 assertions），ORM 3.6 + DBAL 4.4 未修复任何脏数据场景
+      - `testWithoutTrait_IdentityMapReturnsStaleEntity` — ✅ 通过（identity map 仍返回 stale entity）
+      - `testWithoutTrait_SecondLevelCacheIsStale` — ✅ 通过（L2 cache 仍包含已删除 entity）
+      - `testWithoutTrait_StaleCollectionReference` — ✅ 通过（PHP 对象仍持有已删除引用）
+    - **路径判定**：三个用例全部通过 → **保留路径（Req 6）**
+  - [x] 2.2 Checkpoint: 记录路径判定结果并告知用户，commit
     - 明确输出：走移除路径还是保留路径
     - 如果部分场景修复、部分未修复，列出具体哪些已修复哪些未修复
     - commit message 参考：`test: verify ORM 3 native dirty-data behavior, path decision: <移除/保留>`
 
-- [ ] 3. [IF 移除路径] 移除 CascadeRemoveTrait 和 CascadeRemovableInterface
+- ~~3. [IF 移除路径] 移除 CascadeRemoveTrait 和 CascadeRemovableInterface~~ **SKIP**（Task 2 判定为保留路径）
   - **前置条件**：Task 2 判定结果为移除路径（ORM 3 已原生解决所有三个脏数据场景）
-  - [ ] 3.1 删除源码文件
-    - 删除 `src/CascadeRemoveTrait.php`
-    - 删除 `src/CascadeRemovableInterface.php`
-    - _Requirements: 5.1, 5.2_
-  - [ ] 3.2 清理 Entity Fixture 中的 CascadeRemoveTrait / CascadeRemovableInterface 引用
-    - `ut/Entity/Article.php`：移除 `use CascadeRemoveTrait`、`implements CascadeRemovableInterface`、`#[ORM\HasLifecycleCallbacks]`、`getCascadeRemoveableEntities()` 方法、`getDirtyEntitiesOnInvalidation()` 方法、相关 `use` import 语句
-    - `ut/Entity/Category.php`：同上
-    - `ut/Entity/Tag.php`：同上
-    - 参考 design Components §4
-    - _Requirements: 5.3_
-  - [ ] 3.3 删除仅测试 CascadeRemoveTrait 行为的测试文件
-    - 删除 `ut/Test/CascadeRemoveTest.php`
-    - 删除 `ut/Test/CascadeRemoveTraitTest.php`
-    - 删除 `ut/Test/CascadeRemoveTraitPbtTest.php`
-    - _Requirements: 5.4_
-  - [ ] 3.4 Checkpoint: 确认移除完成，commit
-    - 执行 `grep -r 'CascadeRemoveTrait\|CascadeRemovableInterface' src/ ut/Entity/` 确认返回空结果
-    - 确认 `src/CascadeRemoveTrait.php` 和 `src/CascadeRemovableInterface.php` 文件不存在
-    - 注意：此时全量测试尚不能通过（Contrast_Test 和 phpunit.xml 尚未更新），仅验证移除操作本身的完整性
-    - commit message 参考：`refactor: remove CascadeRemoveTrait and CascadeRemovableInterface`
+  - ~~3.1 删除源码文件~~
+  - ~~3.2 清理 Entity Fixture 中的 CascadeRemoveTrait / CascadeRemovableInterface 引用~~
+  - ~~3.3 删除仅测试 CascadeRemoveTrait 行为的测试文件~~
+  - ~~3.4 Checkpoint: 确认移除完成，commit~~
 
 - [ ] 4. [IF 保留路径] 替代 CascadeRemoveTrait 中的 UnitOfWork Internal API
   - **前置条件**：Task 2 判定结果为保留路径（ORM 3 未完全解决脏数据问题）
