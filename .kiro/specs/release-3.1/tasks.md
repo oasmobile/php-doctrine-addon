@@ -104,8 +104,8 @@
     - commit message 参考：`refactor: replace UnitOfWork internal API with EntityManager public API`
     - _Requirements: 6.3, 6.4_
 
-- [-] 5. Contrast_Test 断言反转 + PHPUnit 配置更新
-  - [ ] 5.1 [IF 移除路径] 移除 With-trait 用例并反转 Without-trait 断言
+- [x] 5. Contrast_Test 断言反转 + PHPUnit 配置更新
+  - [x] 5.1 [IF 移除路径] 移除 With-trait 用例并反转 Without-trait 断言
     - **前置条件**：Task 2 判定结果为移除路径
     - 在 `ut/Test/CascadeRemoveContrastTest.php` 中：
       - 移除 `testWithTrait_IdentityMapIsClean()`、`testWithTrait_SecondLevelCacheIsEvicted()`、`testWithTrait_DirtyEntitiesAreRefreshed()` 三个方法
@@ -123,7 +123,7 @@
       - 未修复的场景保持原有断言不变
     - 参考 design Components §5.2
     - _Requirements: 7.1, 7.2, 7.4_
-  - [ ] 5.3 [IF 移除路径] 从 `phpunit.xml` 中移除已删除的测试文件引用
+  - [x] 5.3 [IF 移除路径] 从 `phpunit.xml` 中移除已删除的测试文件引用
     - 移除 `<file>ut/Test/CascadeRemoveTest.php</file>`
     - 移除 `<file>ut/Test/CascadeRemoveTraitTest.php</file>`
     - 移除 `<file>ut/Test/CascadeRemoveTraitPbtTest.php</file>`
@@ -132,22 +132,22 @@
   - [x] 5.4 [IF 保留路径] 确认 `phpunit.xml` 无需变更
     - 保留路径下 test suite 定义不变，无需修改
     - _Requirements: 10.2, 10.3_
-  - [-] 5.5 Checkpoint: 执行全量测试确认路径操作完成，commit
+  - [x] 5.5 Checkpoint: 执行全量测试确认路径操作完成，commit
     - 执行 `vendor/bin/phpunit` 确认全量测试通过（exit code 0）且零 deprecation warning
     - 确认测试数量与路径一致（移除路径：减少 3 个测试文件；保留路径：测试文件数量不变）
     - commit message 参考：`test: update contrast test assertions and phpunit config for <移除/保留> path`
     - _Requirements: 11.1, 11.2, 11.3_
 
-- [ ] 6. 手工测试与集成验证
-  - [ ] 6.1 Increment alpha tag
+- [-] 6. 手工测试与集成验证
+  - [x] 6.1 Increment alpha tag
     - 查询已有 alpha tag（`git tag -l 'v3.1-alpha*'`），取最大序号 +1，打新 tag
     - 如无 alpha tag 则打 `v3.1-alpha1`
-  - [ ] 6.2 全量测试验证
+  - [x] 6.2 全量测试验证
     - 执行 `vendor/bin/phpunit`，确认 exit code 0
     - 确认零 deprecation warning（`failOnDeprecation="true"` 已启用）
     - 确认所有现有测试 + PBT 用例全部通过
     - _Requirements: 11.1, 11.2, 11.3_
-  - [ ] 6.3 Composer 配置验证
+  - [x] 6.3 Composer 配置验证
     - 执行 `composer validate` 确认无 error
     - 执行 `composer install` 确认无 abandoned package warning
     - 确认 `doctrine/cache` 和 `doctrine/common` 不在已安装包列表中
@@ -156,10 +156,10 @@
     - 执行 `grep -r 'CascadeRemoveTrait\|CascadeRemovableInterface' src/ ut/Entity/` 确认返回空结果
     - 确认 `src/CascadeRemoveTrait.php` 和 `src/CascadeRemovableInterface.php` 文件不存在
     - _Requirements: 5.1, 5.2, 5.3_
-  - [ ] 6.5 [IF 保留路径] UnitOfWork 调用残留扫描
+  - [x] 6.5 [IF 保留路径] UnitOfWork 调用残留扫描
     - 执行 `grep -r 'getUnitOfWork\|UnitOfWork' src/` 确认返回空结果
     - _Requirements: 6.2_
-  - [ ] 6.6 Checkpoint: 所有验证通过，commit
+  - [-] 6.6 Checkpoint: 所有验证通过，commit
     - 确认全量测试、composer 验证、残留扫描均通过
     - commit message 参考：`test: release 3.1 alpha integration verification`
 
