@@ -202,6 +202,43 @@ class CascadeRemoveTraitTest extends TestCase
     }
 
     /**
+     * Category::removeArticle must actually remove the article from the in-memory collection.
+     * Regression: previously used Collection::remove($obj) instead of removeElement($obj),
+     * which silently did nothing because remove() expects an integer key.
+     */
+    public function testCategoryRemoveArticleActuallyRemovesFromCollection()
+    {
+        $category = new Category();
+        $article  = new Article();
+        $article->setCategory($category);
+
+        $this->assertCount(1, $category->getCascadeRemoveableEntities());
+
+        $category->removeArticle($article);
+
+        $this->assertCount(0, $category->getCascadeRemoveableEntities(),
+            'removeArticle must actually remove the article from the collection');
+    }
+
+    /**
+     * Category::removeChild must actually remove the child from the in-memory collection.
+     * Same regression as removeArticle — Collection::remove() vs removeElement().
+     */
+    public function testCategoryRemoveChildActuallyRemovesFromCollection()
+    {
+        $parent = new Category();
+        $child  = new Category();
+        $child->setParent($parent);
+
+        $this->assertCount(1, $parent->getChildren());
+
+        $parent->removeChild($child);
+
+        $this->assertCount(0, $parent->getChildren(),
+            'removeChild must actually remove the child from the collection');
+    }
+
+    /**
      * After removing a category (which cascade-removes its articles at DB level),
      * the second-level cache must no longer contain the removed entities.
      * This verifies that onPostRemove actually calls evictEntity on the cache.

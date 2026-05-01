@@ -138,7 +138,7 @@
     - commit message 参考：`test: update contrast test assertions and phpunit config for <移除/保留> path`
     - _Requirements: 11.1, 11.2, 11.3_
 
-- [-] 6. 手工测试与集成验证
+- [x] 6. 手工测试与集成验证
   - [x] 6.1 Increment alpha tag
     - 查询已有 alpha tag（`git tag -l 'v3.1-alpha*'`），取最大序号 +1，打新 tag
     - 如无 alpha tag 则打 `v3.1-alpha1`
@@ -152,18 +152,18 @@
     - 执行 `composer install` 确认无 abandoned package warning
     - 确认 `doctrine/cache` 和 `doctrine/common` 不在已安装包列表中
     - _Requirements: 1.2, 2.1, 2.2, 2.3_
-  - [ ] 6.4 [IF 移除路径] 源码残留扫描
+  - [x] 6.4 [IF 移除路径] 源码残留扫描
     - 执行 `grep -r 'CascadeRemoveTrait\|CascadeRemovableInterface' src/ ut/Entity/` 确认返回空结果
     - 确认 `src/CascadeRemoveTrait.php` 和 `src/CascadeRemovableInterface.php` 文件不存在
     - _Requirements: 5.1, 5.2, 5.3_
   - [x] 6.5 [IF 保留路径] UnitOfWork 调用残留扫描
     - 执行 `grep -r 'getUnitOfWork\|UnitOfWork' src/` 确认返回空结果
     - _Requirements: 6.2_
-  - [-] 6.6 Checkpoint: 所有验证通过，commit
+  - [x] 6.6 Checkpoint: 所有验证通过，commit
     - 确认全量测试、composer 验证、残留扫描均通过
     - commit message 参考：`test: release 3.1 alpha integration verification`
 
-- [ ] 7. Code Review
+- [x] 7. Code Review
   - 委托给 `code-reviewer` sub-agent 执行
   - Review 范围：本 spec 所有变更文件（`composer.json`、`phpunit.xml`、`ut/TestEnv.php`、`ut/cli-config.php`、`src/` 下文件、`ut/Entity/` 下文件、`ut/Test/CascadeRemoveContrastTest.php`）
 
