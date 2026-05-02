@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.1.1 - 2026-05-02
+
+新增 1.x → ^3.1 迁移指南。详见 [3.1.1/CHANGELOG.md](3.1.1/CHANGELOG.md)。
+
 ## v3.1.0 - 2025-07-17
 
 升级 Doctrine ORM 至 ^3.6 / DBAL ^4.4，消除 abandoned 依赖，CascadeRemoveTrait 改用 EntityManager public API。详见 [3.1.0/CHANGELOG.md](3.1.0/CHANGELOG.md)。
