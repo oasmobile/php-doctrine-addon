@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.1.2 - 2026-05-03
+
+升级 symfony/cache ^7.2 → ^8.0。详见 [3.1.2/CHANGELOG.md](3.1.2/CHANGELOG.md)。
+
 ## v3.1.1 - 2026-05-02
 
 新增 1.x → ^3.1 迁移指南。详见 [3.1.1/CHANGELOG.md](3.1.1/CHANGELOG.md)。
